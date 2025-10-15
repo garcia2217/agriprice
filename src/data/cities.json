@@ -1,0 +1,61 @@
+{
+    "Aceh": ["Kota Banda Aceh", "Kota Lhokseumawe", "Kota Meulaboh"],
+    "Banten": ["Kota Cilegon", "Kota Serang", "Kota Tangerang"],
+    "Bengkulu": ["Kota Bengkulu"],
+    "DI Yogyakarta": ["Kota Yogyakarta"],
+    "DKI Jakarta": ["Kota Jakarta Pusat"],
+    "Jambi": ["Kab. Bungo", "Kota Jambi"],
+    "Jawa Barat": [
+        "Kab. Cirebon",
+        "Kab. Tasikmalaya",
+        "Kota Bandung",
+        "Kota Bekasi",
+        "Kota Bogor",
+        "Kota Cirebon",
+        "Kota Depok",
+        "Kota Sukabumi",
+        "Kota Tasikmalaya"
+    ],
+    "Jawa Tengah": [
+        "Kab. Banyumas",
+        "Kab. Boyolali",
+        "Kab. Cilacap",
+        "Kab. Karanganyar",
+        "Kab. Klaten",
+        "Kab. Kudus",
+        "Kab. Sragen",
+        "Kab. Sukoharjo",
+        "Kab. Wonogiri",
+        "Kota Semarang",
+        "Kota Surakarta (Solo)",
+        "Kota Tegal"
+    ],
+    "Jawa Timur": [
+        "Kab. Banyuwangi",
+        "Kab. Jember",
+        "Kab. Sumenep",
+        "Kota Blitar",
+        "Kota Kediri",
+        "Kota Madiun",
+        "Kota Malang",
+        "Kota Probolinggo",
+        "Kota Surabaya"
+    ],
+    "Kalimantan Barat": ["Kota Pontianak", "Kota Singkawang"],
+    "Kalimantan Selatan": ["Kota Banjarmasin", "Kota Tanjung"],
+    "Kalimantan Tengah": ["Kota Palangkaraya", "Kota Sampit"],
+    "Kalimantan Timur": ["Kota Balikpapan", "Kota Bontang", "Kota Samarinda"],
+    "Kalimantan Utara": ["Kab. Bulungan", "Kota Tarakan"],
+    "Kepulauan Bangka Belitung": ["Kota Pangkal Pinang", "Kota Tanjung Pandan"],
+    "Kepulauan Riau": ["Kota Batam", "Kota Tanjung Pinang"],
+    "Lampung": ["Kota Bandar Lampung", "Kota Metro"],
+    "Riau": ["Kota Dumai", "Kota Pekanbaru", "Kota Tembilahan"],
+    "Sumatera Barat": ["Kota Bukittinggi", "Kota Padang"],
+    "Sumatera Selatan": ["Kota Lubuk Linggau", "Kota Palembang"],
+    "Sumatera Utara": [
+        "Kota Medan",
+        "Kota Padang Sidempuan",
+        "Kota Pematang Siantar",
+        "Kota Sibolga"
+    ]
+}

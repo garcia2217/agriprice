@@ -4,9 +4,9 @@ const RadarChart = ({ data, clusters }) => {
     const [selectedCluster, setSelectedCluster] = useState(0);
     const [showAllClusters, setShowAllClusters] = useState(false);
 
-    // Get normalized cluster features
+    // Get cluster features from backend
     const clusterFeatures = useMemo(() => {
-        return data.getNormalizedClusterFeatures();
+        return data.radarFeatures || {};
     }, [data]);
 
     // Chart configuration
@@ -15,27 +15,22 @@ const RadarChart = ({ data, clusters }) => {
     const centerY = chartSize / 2;
     const radius = 100;
 
-    // Feature axes configuration
-    const axes = [
-        {
-            key: "priceMean",
-            label: "Tingkat Harga",
-            icon: "💰",
-            description: "Rata-rata harga komoditas",
-        },
-        {
-            key: "volatility",
-            label: "Volatilitas",
-            icon: "📈",
-            description: "Tingkat fluktuasi harga",
-        },
-        {
-            key: "trend",
-            label: "Tren Pertumbuhan",
-            icon: "📊",
-            description: "Arah perubahan harga",
-        },
-    ];
+    // Dynamic axes configuration based on commodities
+    const axes = useMemo(() => {
+        if (!clusterFeatures || Object.keys(clusterFeatures).length === 0)
+            return [];
+
+        // Get commodities from the first cluster's features
+        const firstClusterId = Object.keys(clusterFeatures)[0];
+        const commodities = Object.keys(clusterFeatures[firstClusterId] || {});
+
+        return commodities.map((commodity) => ({
+            key: commodity,
+            label: commodity,
+            icon: "🌾", // Default icon, could be customized per commodity
+            description: `Harga rata-rata ${commodity}`,
+        }));
+    }, [clusterFeatures]);
 
     // Calculate polygon points for a cluster
     const getPolygonPoints = (clusterData) => {
@@ -65,20 +60,10 @@ const RadarChart = ({ data, clusters }) => {
     // Generate concentric circles for scale
     const scaleRings = [0.2, 0.4, 0.6, 0.8, 1.0];
 
-    // Format raw values for tooltips
-    const formatValue = (key, rawValue) => {
-        switch (key) {
-            case "priceMean":
-                return `Rp ${Math.round(rawValue).toLocaleString()}`;
-            case "volatility":
-                return `${rawValue.toFixed(1)}%`;
-            case "trend":
-                return rawValue > 0
-                    ? `+${rawValue.toFixed(0)}/tahun`
-                    : `${rawValue.toFixed(0)}/tahun`;
-            default:
-                return rawValue.toFixed(2);
-        }
+    // Format normalized values for tooltips (0-1 scale)
+    const formatValue = (key, normalizedValue) => {
+        // Convert normalized value (0-1) to percentage for display
+        return `${(normalizedValue * 100).toFixed(0)}%`;
     };
 
     return (
@@ -278,8 +263,7 @@ const RadarChart = ({ data, clusters }) => {
                                                               }: ${formatValue(
                                                                   axes[index]
                                                                       .key,
-                                                                  clusterData
-                                                                      .rawValues[
+                                                                  clusterData[
                                                                       axes[
                                                                           index
                                                                       ].key
@@ -354,8 +338,7 @@ const RadarChart = ({ data, clusters }) => {
                                                               }: ${formatValue(
                                                                   axes[index]
                                                                       .key,
-                                                                  clusterData
-                                                                      .rawValues[
+                                                                  clusterData[
                                                                       axes[
                                                                           index
                                                                       ].key
@@ -404,12 +387,18 @@ const RadarChart = ({ data, clusters }) => {
                                 ></div>
                             </div>
                         </div>
-                        <div className="grid grid-cols-3 gap-4">
+                        <div
+                            className={`grid gap-4 ${
+                                axes.length <= 3
+                                    ? "grid-cols-3"
+                                    : axes.length <= 5
+                                    ? "grid-cols-5"
+                                    : "grid-cols-6"
+                            }`}
+                        >
                             {axes.map((axis) => {
                                 const clusterData =
                                     clusterFeatures[selectedCluster];
-                                const rawValue =
-                                    clusterData?.rawValues[axis.key] || 0;
                                 const normalizedValue =
                                     clusterData?.[axis.key] || 0;
 
@@ -422,7 +411,10 @@ const RadarChart = ({ data, clusters }) => {
                                             {axis.label}
                                         </div>
                                         <div className="font-bold text-gray-900">
-                                            {formatValue(axis.key, rawValue)}
+                                            {formatValue(
+                                                axis.key,
+                                                normalizedValue
+                                            )}
                                         </div>
                                         <div className="text-xs text-gray-500">
                                             {(normalizedValue * 100).toFixed(0)}
@@ -456,8 +448,8 @@ const RadarChart = ({ data, clusters }) => {
                                 {axes.map((axis) => {
                                     const clusterData =
                                         clusterFeatures[cluster.id];
-                                    const rawValue =
-                                        clusterData?.rawValues[axis.key] || 0;
+                                    const normalizedValue =
+                                        clusterData?.[axis.key] || 0;
 
                                     return (
                                         <div
@@ -470,7 +462,7 @@ const RadarChart = ({ data, clusters }) => {
                                             <span className="font-medium text-gray-900">
                                                 {formatValue(
                                                     axis.key,
-                                                    rawValue
+                                                    normalizedValue
                                                 )}
                                             </span>
                                         </div>

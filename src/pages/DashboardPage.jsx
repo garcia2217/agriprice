@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from "react";
 import { researchResults } from "../data/mockData";
 import MapComponent from "../components/dashboard/MapComponent";
 import ControlPanel from "../components/dashboard/ControlPanel";
+import { AnalysisProvider } from "../context/AnalysisContext";
 import ChartContainer from "../components/charts/ChartContainer";
 
 const DashboardPage = () => {
@@ -180,14 +181,16 @@ const DashboardPage = () => {
                                 </div>
                             </div>
                             <div className="p-6">
-                                <ControlPanel
-                                    mode={mode}
-                                    setMode={handleModeChange}
-                                    onFileUpload={handleFileUpload}
-                                    isLoading={isLoading}
-                                    error={error}
-                                    data={memoizedAnalysisData}
-                                />
+                                <AnalysisProvider defaultMode={mode}>
+                                    <ControlPanel
+                                        mode={mode}
+                                        setMode={handleModeChange}
+                                        onFileUpload={handleFileUpload}
+                                        isLoading={isLoading}
+                                        error={error}
+                                        data={memoizedAnalysisData}
+                                    />
+                                </AnalysisProvider>
                             </div>
                         </div>
                     </div>

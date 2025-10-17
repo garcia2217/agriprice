@@ -89,8 +89,25 @@ export const researchResults = {
     ],
     years: ["2020", "2021", "2022", "2023", "2024"],
     trends: {},
+    radarFeatures: {
+        0: {
+            Beras: 0.8,
+            "Daging Ayam": 0.9,
+            "Telur Ayam": 0.7,
+        },
+        1: {
+            Beras: 0.3,
+            "Daging Ayam": 0.4,
+            "Telur Ayam": 0.2,
+        },
+        2: {
+            Beras: 0.6,
+            "Daging Ayam": 0.5,
+            "Telur Ayam": 0.8,
+        },
+    },
 
-    // Calculate cluster features for radar chart
+    // Legacy methods - kept for backward compatibility but not used by radar chart
     getClusterFeatures() {
         const commodities = Object.keys(this.trends);
         const clusterFeatures = {};
@@ -144,7 +161,7 @@ export const researchResults = {
         return clusterFeatures;
     },
 
-    // Get normalized features (0-1 scale) for radar chart
+    // Legacy method - kept for backward compatibility but not used by radar chart
     getNormalizedClusterFeatures() {
         const features = this.getClusterFeatures();
         const clusterIds = Object.keys(features);
@@ -255,8 +272,25 @@ export const userResults = {
     ],
     years: ["Thn 1", "Thn 2", "Thn 3", "Thn 4", "Thn 5"],
     trends: {},
+    radarFeatures: {
+        0: {
+            Beras: 0.2,
+            "Daging Ayam": 0.3,
+            "Telur Ayam": 0.1,
+        },
+        1: {
+            Beras: 0.5,
+            "Daging Ayam": 0.6,
+            "Telur Ayam": 0.4,
+        },
+        2: {
+            Beras: 0.9,
+            "Daging Ayam": 0.8,
+            "Telur Ayam": 0.95,
+        },
+    },
 
-    // Calculate cluster features for radar chart
+    // Legacy methods - kept for backward compatibility but not used by radar chart
     getClusterFeatures() {
         const commodities = Object.keys(this.trends);
         const clusterFeatures = {};
@@ -310,7 +344,7 @@ export const userResults = {
         return clusterFeatures;
     },
 
-    // Get normalized features (0-1 scale) for radar chart
+    // Legacy method - kept for backward compatibility but not used by radar chart
     getNormalizedClusterFeatures() {
         const features = this.getClusterFeatures();
         const clusterIds = Object.keys(features);

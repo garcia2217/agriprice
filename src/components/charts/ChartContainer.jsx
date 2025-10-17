@@ -211,24 +211,24 @@ const ChartContainer = ({ data }) => {
                             {chartType === "radar" ? (
                                 <>
                                     <p>
-                                        • <strong>Tingkat Harga:</strong>{" "}
-                                        Semakin jauh dari pusat, semakin tinggi
-                                        rata-rata harga komoditas
+                                        • <strong>Setiap Sumbu:</strong>{" "}
+                                        Mewakili satu komoditas dengan nilai
+                                        ter-normalisasi (0-100%)
                                     </p>
                                     <p>
-                                        • <strong>Volatilitas:</strong>{" "}
-                                        Menunjukkan seberapa fluktuatif harga di
-                                        klaster tersebut
-                                    </p>
-                                    <p>
-                                        • <strong>Tren Pertumbuhan:</strong>{" "}
-                                        Arah perubahan harga dari waktu ke waktu
-                                        (positif = naik, negatif = turun)
+                                        • <strong>Nilai Tinggi:</strong>{" "}
+                                        Menunjukkan klaster dengan harga
+                                        komoditas yang relatif tinggi
                                     </p>
                                     <p>
                                         • <strong>Bentuk Polygon:</strong>{" "}
-                                        Semakin luas area, semakin dominan
-                                        karakteristik klaster tersebut
+                                        Menunjukkan profil harga unik setiap
+                                        klaster untuk semua komoditas
+                                    </p>
+                                    <p>
+                                        • <strong>Perbandingan:</strong> Semakin
+                                        luas area, semakin dominan karakteristik
+                                        harga klaster tersebut
                                     </p>
                                 </>
                             ) : (

@@ -206,6 +206,9 @@ export const researchResults = {
 
         return normalizedFeatures;
     },
+
+    // Box Plot Data for visualization
+    boxPlotData: {},
 };
 
 // Populate monthly trends for researchResults
@@ -237,6 +240,102 @@ export const researchResults = {
             })),
         ])
     );
+})();
+
+// Generate box plot data for researchResults
+(() => {
+    const commodities = Object.keys(researchResults.trends);
+    const clusters = researchResults.clusters.map((c) => c.id.toString());
+    const years = researchResults.years;
+
+    // Generate monthly price data with variation for box plots
+    const generateMonthlyBoxData = (yearlyData, yearsCount) => {
+        const result = {};
+        for (let y = 0; y < yearsCount; y++) {
+            const year = years[y];
+            result[year] = {};
+
+            yearlyData.forEach(({ clusterId, data }) => {
+                const yearlyPrice = data[y];
+                const monthlyPrices = [];
+
+                // Generate 12 monthly prices with realistic variation
+                for (let m = 0; m < 12; m++) {
+                    const variation =
+                        (Math.random() - 0.5) * yearlyPrice * 0.05; // 5% variation
+                    const monthlyPrice = Math.round(yearlyPrice + variation);
+                    monthlyPrices.push(monthlyPrice);
+                }
+
+                result[year][clusterId.toString()] = monthlyPrices;
+            });
+        }
+        return result;
+    };
+
+    // Calculate box plot statistics
+    const calculateBoxStats = (prices) => {
+        const sorted = [...prices].sort((a, b) => a - b);
+        const n = sorted.length;
+        const q1 = sorted[Math.floor(n * 0.25)];
+        const median = sorted[Math.floor(n * 0.5)];
+        const q3 = sorted[Math.floor(n * 0.75)];
+        const mean = prices.reduce((sum, val) => sum + val, 0) / n;
+        const std = Math.sqrt(
+            prices.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / n
+        );
+
+        // Calculate outliers (1.5 * IQR rule)
+        const iqr = q3 - q1;
+        const lowerBound = q1 - 1.5 * iqr;
+        const upperBound = q3 + 1.5 * iqr;
+        const outliers = prices.filter((p) => p < lowerBound || p > upperBound);
+
+        return {
+            min: Math.min(...prices),
+            q1,
+            median,
+            q3,
+            max: Math.max(...prices),
+            mean: Math.round(mean),
+            std: Math.round(std),
+            outliers,
+        };
+    };
+
+    // Generate data structure
+    const data = {};
+    const statistics = {};
+
+    commodities.forEach((commodity) => {
+        const commodityData = researchResults.trends[commodity];
+        data[commodity] = generateMonthlyBoxData(commodityData, years.length);
+
+        statistics[commodity] = {};
+        years.forEach((year) => {
+            statistics[commodity][year] = {};
+            commodityData.forEach(({ clusterId }) => {
+                const prices = data[commodity][year][clusterId.toString()];
+                statistics[commodity][year][clusterId.toString()] =
+                    calculateBoxStats(prices);
+            });
+        });
+    });
+
+    // Cluster colors mapping
+    const clusterColors = {};
+    researchResults.clusters.forEach((cluster) => {
+        clusterColors[cluster.id.toString()] = cluster.hexColor;
+    });
+
+    researchResults.boxPlotData = {
+        commodities,
+        clusters,
+        years,
+        data,
+        statistics,
+        clusterColors,
+    };
 })();
 
 export const userResults = {
@@ -389,6 +488,9 @@ export const userResults = {
 
         return normalizedFeatures;
     },
+
+    // Box Plot Data for visualization
+    boxPlotData: {},
 };
 
 // Populate monthly trends for userResults
@@ -420,4 +522,100 @@ export const userResults = {
             })),
         ])
     );
+})();
+
+// Generate box plot data for userResults
+(() => {
+    const commodities = Object.keys(userResults.trends);
+    const clusters = userResults.clusters.map((c) => c.id.toString());
+    const years = userResults.years;
+
+    // Generate monthly price data with variation for box plots
+    const generateMonthlyBoxData = (yearlyData, yearsCount) => {
+        const result = {};
+        for (let y = 0; y < yearsCount; y++) {
+            const year = years[y];
+            result[year] = {};
+
+            yearlyData.forEach(({ clusterId, data }) => {
+                const yearlyPrice = data[y];
+                const monthlyPrices = [];
+
+                // Generate 12 monthly prices with realistic variation
+                for (let m = 0; m < 12; m++) {
+                    const variation =
+                        (Math.random() - 0.5) * yearlyPrice * 0.05; // 5% variation
+                    const monthlyPrice = Math.round(yearlyPrice + variation);
+                    monthlyPrices.push(monthlyPrice);
+                }
+
+                result[year][clusterId.toString()] = monthlyPrices;
+            });
+        }
+        return result;
+    };
+
+    // Calculate box plot statistics
+    const calculateBoxStats = (prices) => {
+        const sorted = [...prices].sort((a, b) => a - b);
+        const n = sorted.length;
+        const q1 = sorted[Math.floor(n * 0.25)];
+        const median = sorted[Math.floor(n * 0.5)];
+        const q3 = sorted[Math.floor(n * 0.75)];
+        const mean = prices.reduce((sum, val) => sum + val, 0) / n;
+        const std = Math.sqrt(
+            prices.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / n
+        );
+
+        // Calculate outliers (1.5 * IQR rule)
+        const iqr = q3 - q1;
+        const lowerBound = q1 - 1.5 * iqr;
+        const upperBound = q3 + 1.5 * iqr;
+        const outliers = prices.filter((p) => p < lowerBound || p > upperBound);
+
+        return {
+            min: Math.min(...prices),
+            q1,
+            median,
+            q3,
+            max: Math.max(...prices),
+            mean: Math.round(mean),
+            std: Math.round(std),
+            outliers,
+        };
+    };
+
+    // Generate data structure
+    const data = {};
+    const statistics = {};
+
+    commodities.forEach((commodity) => {
+        const commodityData = userResults.trends[commodity];
+        data[commodity] = generateMonthlyBoxData(commodityData, years.length);
+
+        statistics[commodity] = {};
+        years.forEach((year) => {
+            statistics[commodity][year] = {};
+            commodityData.forEach(({ clusterId }) => {
+                const prices = data[commodity][year][clusterId.toString()];
+                statistics[commodity][year][clusterId.toString()] =
+                    calculateBoxStats(prices);
+            });
+        });
+    });
+
+    // Cluster colors mapping
+    const clusterColors = {};
+    userResults.clusters.forEach((cluster) => {
+        clusterColors[cluster.id.toString()] = cluster.hexColor;
+    });
+
+    userResults.boxPlotData = {
+        commodities,
+        clusters,
+        years,
+        data,
+        statistics,
+        clusterColors,
+    };
 })();

@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from "react";
 import TrendChart from "./TrendChart";
 import RadarChart from "./RadarChart";
+import BoxPlotChart from "./BoxPlotChart";
 
 const ChartContainer = ({ data }) => {
     const [selectedCommodity, setSelectedCommodity] = useState("Beras");
-    const [chartType, setChartType] = useState("trend"); // 'trend' or 'radar'
+    const [chartType, setChartType] = useState("trend"); // 'trend', 'radar', or 'boxplot'
 
     const commodities = useMemo(() => Object.keys(data.trends), [data.trends]);
 
@@ -16,12 +17,16 @@ const ChartContainer = ({ data }) => {
                     <h3 className="text-2xl font-bold text-gray-900">
                         {chartType === "trend"
                             ? "Tren Harga per Klaster"
-                            : "DNA Klaster - Profil Karakteristik"}
+                            : chartType === "radar"
+                            ? "DNA Klaster - Profil Karakteristik"
+                            : "Distribusi Harga per Komoditas"}
                     </h3>
                     <p className="text-gray-600">
                         {chartType === "trend"
                             ? `Analisis perbandingan harga ${selectedCommodity.toLowerCase()} antar klaster`
-                            : "Visualisasi radar menampilkan profil unik setiap klaster berdasarkan harga, volatilitas, dan tren"}
+                            : chartType === "radar"
+                            ? "Visualisasi radar menampilkan profil unik setiap klaster berdasarkan harga, volatilitas, dan tren"
+                            : "Box plot menunjukkan distribusi harga setiap komoditas berdasarkan tahun dan klaster"}
                     </p>
                 </div>
 
@@ -52,10 +57,20 @@ const ChartContainer = ({ data }) => {
                             >
                                 🕷️ DNA
                             </button>
+                            <button
+                                onClick={() => setChartType("boxplot")}
+                                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                                    chartType === "boxplot"
+                                        ? "bg-white text-orange-600 shadow-sm"
+                                        : "text-gray-600 hover:text-gray-900"
+                                }`}
+                            >
+                                📦 Distribusi
+                            </button>
                         </div>
                     </div>
 
-                    {/* Commodity Selector (only for trend chart) */}
+                    {/* Commodity Selector (for trend and boxplot charts) */}
                     {chartType === "trend" && (
                         <div className="flex items-center space-x-2">
                             <label className="text-sm font-medium text-gray-700">
@@ -166,8 +181,15 @@ const ChartContainer = ({ data }) => {
                         clusters={data.clusters}
                         years={data.years}
                     />
-                ) : (
+                ) : chartType === "radar" ? (
                     <RadarChart data={data} clusters={data.clusters} />
+                ) : (
+                    <BoxPlotChart
+                        boxPlotData={data.boxPlotData}
+                        clusters={data.clusters}
+                        selectedCommodity={selectedCommodity}
+                        onCommodityChange={setSelectedCommodity}
+                    />
                 )}
             </div>
 
@@ -176,6 +198,8 @@ const ChartContainer = ({ data }) => {
                 className={`p-6 rounded-xl border ${
                     chartType === "radar"
                         ? "bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200"
+                        : chartType === "boxplot"
+                        ? "bg-gradient-to-br from-orange-50 to-red-50 border-orange-200"
                         : "bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200"
                 }`}
             >
@@ -184,27 +208,39 @@ const ChartContainer = ({ data }) => {
                         className={`w-8 h-8 rounded-lg flex items-center justify-center text-white text-lg flex-shrink-0 ${
                             chartType === "radar"
                                 ? "bg-purple-500"
+                                : chartType === "boxplot"
+                                ? "bg-orange-500"
                                 : "bg-indigo-500"
                         }`}
                     >
-                        {chartType === "radar" ? "🕷️" : "💡"}
+                        {chartType === "radar"
+                            ? "🕷️"
+                            : chartType === "boxplot"
+                            ? "📦"
+                            : "💡"}
                     </div>
                     <div>
                         <h4
                             className={`font-semibold mb-2 ${
                                 chartType === "radar"
                                     ? "text-purple-900"
+                                    : chartType === "boxplot"
+                                    ? "text-orange-900"
                                     : "text-indigo-900"
                             }`}
                         >
                             {chartType === "radar"
                                 ? "Cara Membaca DNA Klaster"
+                                : chartType === "boxplot"
+                                ? "Cara Membaca Box Plot"
                                 : "Insight Analisis"}
                         </h4>
                         <div
                             className={`text-sm space-y-1 ${
                                 chartType === "radar"
                                     ? "text-purple-800"
+                                    : chartType === "boxplot"
+                                    ? "text-orange-800"
                                     : "text-indigo-800"
                             }`}
                         >
@@ -229,6 +265,27 @@ const ChartContainer = ({ data }) => {
                                         • <strong>Perbandingan:</strong> Semakin
                                         luas area, semakin dominan karakteristik
                                         harga klaster tersebut
+                                    </p>
+                                </>
+                            ) : chartType === "boxplot" ? (
+                                <>
+                                    <p>
+                                        • <strong>Box Plot:</strong> Menampilkan
+                                        distribusi harga dari semua data point
+                                        per komoditas
+                                    </p>
+                                    <p>
+                                        • <strong>Setiap Box:</strong> Mewakili
+                                        satu klaster dengan warna yang konsisten
+                                    </p>
+                                    <p>
+                                        • <strong>Box menunjukkan:</strong> Q1,
+                                        median (garis tebal), dan Q3; whiskers
+                                        menunjukkan min-max
+                                    </p>
+                                    <p>
+                                        • <strong>Outliers:</strong> Ditampilkan
+                                        sebagai titik di luar whiskers
                                     </p>
                                 </>
                             ) : (

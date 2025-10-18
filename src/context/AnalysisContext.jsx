@@ -6,13 +6,13 @@ import React, {
     useState,
 } from "react";
 import {
-    availableAlgorithms,
-    availableCommodities,
     YEAR_MIN,
     YEAR_MAX,
     CLUSTER_MIN,
     CLUSTER_MAX,
+    availableCommodities,
 } from "../constants/analysis";
+import citiesByProvince from "../data/cities.json";
 
 const AnalysisContext = createContext(null);
 
@@ -22,11 +22,12 @@ export const AnalysisProvider = ({ children, defaultMode = "research" }) => {
         algorithms: ["kmeans"],
         commodities: ["Beras", "Daging Ayam", "Telur Ayam"],
         numClusters: 3,
-        yearRange: { start: 2020, end: 2025 },
+        yearRange: { start: 2020, end: 2024 },
         locations: { provinces: [], cities: [] },
         dataSource: "app",
     });
     const [selectedFile, setSelectedFile] = useState(null);
+    const [analysisId, setAnalysisId] = useState(null);
     const [ui, setUi] = useState({
         activeTab: "algorithms",
         dragActive: false,
@@ -106,6 +107,43 @@ export const AnalysisProvider = ({ children, defaultMode = "research" }) => {
         []
     );
 
+    // Select All/Deselect All actions
+    const selectAllCommodities = useCallback(() => {
+        setAnalysisConfig((p) => ({
+            ...p,
+            commodities: [...availableCommodities],
+        }));
+    }, []);
+
+    const deselectAllCommodities = useCallback(() => {
+        setAnalysisConfig((p) => ({
+            ...p,
+            commodities: [],
+        }));
+    }, []);
+
+    const selectAllLocations = useCallback(() => {
+        const allProvinces = Object.keys(citiesByProvince);
+        const allCities = Object.values(citiesByProvince).flat();
+        setAnalysisConfig((p) => ({
+            ...p,
+            locations: {
+                provinces: allProvinces,
+                cities: allCities,
+            },
+        }));
+    }, []);
+
+    const deselectAllLocations = useCallback(() => {
+        setAnalysisConfig((p) => ({
+            ...p,
+            locations: {
+                provinces: [],
+                cities: [],
+            },
+        }));
+    }, []);
+
     const submitAnalysis = useCallback(
         ({ onFileUpload }) => {
             const isUploadMode = analysisConfig.dataSource === "upload";
@@ -133,8 +171,10 @@ export const AnalysisProvider = ({ children, defaultMode = "research" }) => {
             setMode,
             analysisConfig,
             selectedFile,
+            analysisId,
             ui,
             setSelectedFile,
+            setAnalysisId,
             actions: {
                 setDataSource,
                 toggleAlgorithm,
@@ -146,6 +186,10 @@ export const AnalysisProvider = ({ children, defaultMode = "research" }) => {
                 setDragActive,
                 openLocationModal,
                 closeLocationModal,
+                selectAllCommodities,
+                deselectAllCommodities,
+                selectAllLocations,
+                deselectAllLocations,
                 submitAnalysis,
             },
         }),
@@ -153,6 +197,7 @@ export const AnalysisProvider = ({ children, defaultMode = "research" }) => {
             mode,
             analysisConfig,
             selectedFile,
+            analysisId,
             ui,
             setDataSource,
             toggleAlgorithm,
@@ -164,6 +209,10 @@ export const AnalysisProvider = ({ children, defaultMode = "research" }) => {
             setDragActive,
             openLocationModal,
             closeLocationModal,
+            selectAllCommodities,
+            deselectAllCommodities,
+            selectAllLocations,
+            deselectAllLocations,
             submitAnalysis,
         ]
     );

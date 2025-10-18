@@ -32,11 +32,11 @@ const HomePage = ({ setCurrentPage }) => (
 
                     <p className="max-w-4xl mx-auto text-xl text-gray-600 leading-relaxed">
                         Penelitian inovatif yang menerapkan algoritma{" "}
-                        <strong>K-Means</strong> dan{" "}
-                        <strong>Fuzzy C-Means</strong> untuk memetakan pola
-                        kewilayahan harga pangan strategis, memberikan wawasan
-                        mendalam bagi perumusan kebijakan yang lebih efektif dan
-                        berbasis data.
+                        <strong>K-Means</strong>, <strong>Fuzzy C-Means</strong>
+                        , dan <strong>Spectral Clustering</strong> untuk
+                        memetakan pola kewilayahan harga pangan strategis,
+                        memberikan wawasan mendalam bagi perumusan kebijakan
+                        yang lebih efektif dan berbasis data.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-10">
@@ -91,7 +91,7 @@ const HomePage = ({ setCurrentPage }) => (
                             icon: "🤖",
                             title: "Machine Learning",
                             description:
-                                "Penerapan algoritma K-Means dan Fuzzy C-Means untuk mengidentifikasi pola tersembunyi dalam data dengan akurasi tinggi dan interpretabilitas yang baik.",
+                                "Penerapan algoritma K-Means, Fuzzy C-Means, dan Spectral Clustering untuk mengidentifikasi pola tersembunyi dalam data dengan akurasi tinggi dan interpretabilitas yang baik.",
                             color: "from-green-500 to-green-600",
                         },
                         {
@@ -136,14 +136,14 @@ const HomePage = ({ setCurrentPage }) => (
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                     {[
-                        { number: "51", label: "Kota/Kabupaten", icon: "🏙️" },
+                        { number: "69", label: "Kota/Kabupaten", icon: "🏙️" },
                         {
                             number: "10",
                             label: "Komoditas Strategis",
                             icon: "🌾",
                         },
                         { number: "5", label: "Tahun Data", icon: "📅" },
-                        { number: "3", label: "Klaster Optimal", icon: "🎯" },
+                        { number: "2", label: "Klaster Optimal", icon: "🎯" },
                     ].map((stat, index) => (
                         <div key={index} className="text-center group">
                             <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 hover:bg-white/20 transition-all duration-300 transform hover:scale-105">

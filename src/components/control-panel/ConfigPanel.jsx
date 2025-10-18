@@ -47,7 +47,7 @@ const ConfigPanel = () => {
                 <div className="flex items-center justify-between mb-3">
                     <h4 className="font-semibold text-gray-900">Tahun</h4>
                     <div className="text-xs text-blue-600 font-medium">
-                        2020 - 2025
+                        2020 - 2024
                     </div>
                 </div>
                 <div
@@ -65,7 +65,7 @@ const ConfigPanel = () => {
                             <input
                                 type="number"
                                 min={2020}
-                                max={2025}
+                                max={2024}
                                 value={analysisConfig.yearRange.start}
                                 onChange={(e) =>
                                     actions.setYearRange(
@@ -83,7 +83,7 @@ const ConfigPanel = () => {
                             <input
                                 type="number"
                                 min={2020}
-                                max={2025}
+                                max={2024}
                                 value={analysisConfig.yearRange.end}
                                 onChange={(e) =>
                                     actions.setYearRange("end", e.target.value)
@@ -96,12 +96,31 @@ const ConfigPanel = () => {
             </div>
 
             <div>
-                <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-semibold text-gray-900">
-                        Provinsi & Kota
-                    </h4>
-                    <div className="text-xs text-blue-600 font-medium">
-                        {analysisConfig.locations.cities.length} kota dipilih
+                <div className="mb-3">
+                    <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold text-gray-900">
+                            Provinsi & Kota
+                        </h4>
+                        <div className="text-xs text-blue-600 font-medium">
+                            {analysisConfig.locations.cities.length} kota
+                            dipilih
+                        </div>
+                    </div>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={actions.selectAllLocations}
+                            disabled={isUpload}
+                            className="flex-1 px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-blue-200"
+                        >
+                            Pilih Semua
+                        </button>
+                        <button
+                            onClick={actions.deselectAllLocations}
+                            disabled={isUpload}
+                            className="flex-1 px-3 py-1.5 text-xs font-medium bg-gray-50 text-gray-700 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-gray-200"
+                        >
+                            Hapus Semua
+                        </button>
                     </div>
                 </div>
                 <button
@@ -311,10 +330,30 @@ const ConfigPanel = () => {
             </div>
 
             <div>
-                <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-semibold text-gray-900">Komoditas</h4>
-                    <div className="text-xs text-blue-600 font-medium">
-                        {analysisConfig.commodities.length} dipilih
+                <div className="mb-3">
+                    <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold text-gray-900">
+                            Komoditas
+                        </h4>
+                        <div className="text-xs text-blue-600 font-medium">
+                            {analysisConfig.commodities.length} dipilih
+                        </div>
+                    </div>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={actions.selectAllCommodities}
+                            disabled={isUpload}
+                            className="flex-1 px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-blue-200"
+                        >
+                            Pilih Semua
+                        </button>
+                        <button
+                            onClick={actions.deselectAllCommodities}
+                            disabled={isUpload}
+                            className="flex-1 px-3 py-1.5 text-xs font-medium bg-gray-50 text-gray-700 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-gray-200"
+                        >
+                            Hapus Semua
+                        </button>
                     </div>
                 </div>
                 <div

@@ -32,40 +32,47 @@ const ControlPanel = ({
                         </h3>
                     </div>
 
-                    <div className="space-y-3">
-                        {data.clusters.map((cluster, index) => (
-                            <div
-                                key={cluster.id}
-                                className="group p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-102"
-                            >
-                                <div className="flex items-center space-x-3">
-                                    <div
-                                        className={`w-3 h-3 rounded-full ${cluster.bgColor} shadow-md group-hover:scale-125 transition-transform duration-300`}
-                                    ></div>
-                                    <div className="flex-1">
+                    {data && data.clusters && data.clusters.length > 0 ? (
+                        <div className="space-y-3">
+                            {data.clusters.map((cluster, index) => (
+                                <div
+                                    key={cluster.id}
+                                    className="group p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-102"
+                                >
+                                    <div className="flex items-center space-x-3">
                                         <div
-                                            className={`font-semibold text-sm ${cluster.color} mb-1`}
-                                        >
-                                            Klaster {index + 1}
-                                        </div>
-                                        <div className="text-xs text-gray-600">
-                                            {cluster.name.split(": ")[1]}
-                                        </div>
-                                        <div className="text-xs text-gray-400 mt-1">
-                                            {
-                                                data.cities.filter(
-                                                    (city) =>
-                                                        city.clusterId ===
-                                                        cluster.id
-                                                ).length
-                                            }{" "}
-                                            kota/kabupaten
+                                            className={`w-3 h-3 rounded-full ${cluster.bgColor} shadow-md group-hover:scale-125 transition-transform duration-300`}
+                                        ></div>
+                                        <div className="flex-1">
+                                            <div
+                                                className={`font-semibold text-sm ${cluster.color} mb-1`}
+                                            >
+                                                Klaster {index + 1}
+                                            </div>
+                                            <div className="text-xs text-gray-600">
+                                                {cluster.name.split(": ")[1]}
+                                            </div>
+                                            <div className="text-xs text-gray-400 mt-1">
+                                                {
+                                                    data.cities.filter(
+                                                        (city) =>
+                                                            city.clusterId ===
+                                                            cluster.id
+                                                    ).length
+                                                }{" "}
+                                                kota/kabupaten
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500">
+                            <div className="text-4xl mb-2">📊</div>
+                            <p className="text-sm">Belum ada data klaster</p>
+                        </div>
+                    )}
 
                     {/* Research Stats */}
                     <div className="mt-4 p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200">

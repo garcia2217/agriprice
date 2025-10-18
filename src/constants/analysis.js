@@ -1,7 +1,7 @@
 // Analysis configuration constants and option lists
 
 export const YEAR_MIN = 2020;
-export const YEAR_MAX = 2025;
+export const YEAR_MAX = 2024;
 export const CLUSTER_MIN = 2;
 export const CLUSTER_MAX = 10;
 

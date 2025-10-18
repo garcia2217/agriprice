@@ -4,6 +4,8 @@ import { useMapManager } from "../../hooks/useMapManager";
 const MapComponent = ({ data }) => {
     const { mapRef } = useMapManager(data);
 
+    const hasData = data && data.clusters && data.clusters.length > 0;
+
     return (
         <div className="h-full w-full flex flex-col">
             {/* Map Controls */}
@@ -13,30 +15,37 @@ const MapComponent = ({ data }) => {
                         <span className="text-sm font-medium text-gray-700">
                             Legenda:
                         </span>
-                        <div className="flex space-x-3">
-                            {data.clusters.map((cluster) => (
-                                <div
-                                    key={cluster.id}
-                                    className="flex items-center space-x-1"
-                                >
+                        {hasData ? (
+                            <div className="flex space-x-3">
+                                {data.clusters.map((cluster) => (
                                     <div
-                                        className={`w-3 h-3 rounded-full ${cluster.bgColor} shadow-sm`}
-                                        style={{
-                                            backgroundColor: cluster.hexColor,
-                                        }}
-                                    ></div>
-                                    <span className="text-xs text-gray-600">
-                                        Klaster {cluster.id + 1}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
+                                        key={cluster.id}
+                                        className="flex items-center space-x-1"
+                                    >
+                                        <div
+                                            className={`w-3 h-3 rounded-full ${cluster.bgColor} shadow-sm`}
+                                            style={{
+                                                backgroundColor:
+                                                    cluster.hexColor,
+                                            }}
+                                        ></div>
+                                        <span className="text-xs text-gray-600">
+                                            Klaster {cluster.id + 1}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <span className="text-sm text-gray-500 italic">
+                                Belum ada data klaster
+                            </span>
+                        )}
                     </div>
                 </div>
 
                 <div className="flex items-center space-x-2 text-xs text-gray-500">
                     <span>🗺️</span>
-                    <span>{data.cities.length} lokasi</span>
+                    <span>{data?.cities?.length || 0} lokasi</span>
                 </div>
             </div>
 
@@ -58,6 +67,22 @@ const MapComponent = ({ data }) => {
                         <p className="text-sm text-gray-600">Memuat peta...</p>
                     </div>
                 </div>
+
+                {/* Empty State Overlay */}
+                {!hasData && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/90 backdrop-blur-sm z-20">
+                        <div className="text-center p-8">
+                            <div className="text-5xl mb-3">🗺️</div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                Peta Siap Menampilkan Data
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                                Lakukan analisis untuk melihat sebaran klaster
+                                di peta
+                            </p>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Map Info */}

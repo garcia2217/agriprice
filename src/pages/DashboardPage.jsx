@@ -4,32 +4,15 @@ import MapComponent from "../components/dashboard/MapComponent";
 import ControlPanel from "../components/dashboard/ControlPanel";
 import { AnalysisProvider } from "../context/AnalysisContext";
 import ChartContainer from "../components/charts/ChartContainer";
+import AnalysisWrapper from "../components/dashboard/AnalysisWrapper";
 
 const DashboardPage = () => {
     const [mode, setMode] = useState("research");
     const [analysisData, setAnalysisData] = useState(researchResults);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-
-    // const handleFileUpload = useCallback((file) => {
-    //   if (!file) {
-    //     setError("Silakan pilih file ZIP untuk diunggah.");
-    //     return;
-    //   }
-    //   if (!file.name.endsWith(".zip")) {
-    //     setError("Format file tidak valid. Harap unggah file .zip.");
-    //     return;
-    //   }
-
-    //   setError(null);
-    //   setIsLoading(true);
-
-    //   setTimeout(() => {
-    //     console.log("File diunggah:", file.name);
-    //     setAnalysisData(userResults);
-    //     setIsLoading(false);
-    //   }, 3000);
-    // }, []);
+    const [analysisId, setAnalysisId] = useState(null);
+    const [customAnalysisData, setCustomAnalysisData] = useState(null);
 
     const handleFileUpload = useCallback(async ({ source, file, config }) => {
         try {
@@ -68,6 +51,13 @@ const DashboardPage = () => {
                 console.log("=== RESPONSE DARI DJANGO ===");
                 console.log(result);
                 setAnalysisData(result); // update dashboard dengan data dari backend
+                setCustomAnalysisData(result); // Store custom analysis results
+
+                // Store analysis_id if present in response
+                if (result.analysis_id) {
+                    setAnalysisId(result.analysis_id);
+                    console.log("Analysis ID received:", result.analysis_id);
+                }
             } else {
                 // App data mode: call backend with configuration only (no file)
                 const response = await fetch(
@@ -87,6 +77,13 @@ const DashboardPage = () => {
                 console.log("=== RESPONSE DARI DJANGO (APP DATA) ===");
                 console.log(result);
                 setAnalysisData(result);
+                setCustomAnalysisData(result); // Store custom analysis results
+
+                // Store analysis_id if present in response
+                if (result.analysis_id) {
+                    setAnalysisId(result.analysis_id);
+                    console.log("Analysis ID received:", result.analysis_id);
+                }
             }
         } catch (err) {
             console.error(err);
@@ -96,13 +93,23 @@ const DashboardPage = () => {
         }
     }, []);
 
-    const handleModeChange = useCallback((newMode) => {
-        setMode(newMode);
-        if (newMode === "research") {
-            setAnalysisData(researchResults);
-            setError(null);
-        }
-    }, []);
+    const handleModeChange = useCallback(
+        (newMode) => {
+            setMode(newMode);
+            if (newMode === "research") {
+                setAnalysisData(researchResults);
+                setError(null);
+            } else if (newMode === "user") {
+                if (customAnalysisData) {
+                    setAnalysisData(customAnalysisData);
+                } else {
+                    setAnalysisData(null); // Trigger empty state
+                }
+                setError(null);
+            }
+        },
+        [customAnalysisData]
+    );
 
     const memoizedAnalysisData = useMemo(() => analysisData, [analysisData]);
 
@@ -122,7 +129,7 @@ const DashboardPage = () => {
                                 Analisis Clustering
                             </span>
                         </h1>
-                        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                        <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-6">
                             Eksplorasi interaktif hasil clustering harga pangan
                             dengan visualisasi peta dan grafik yang komprehensif
                         </p>
@@ -182,14 +189,16 @@ const DashboardPage = () => {
                             </div>
                             <div className="p-6">
                                 <AnalysisProvider defaultMode={mode}>
-                                    <ControlPanel
-                                        mode={mode}
-                                        setMode={handleModeChange}
-                                        onFileUpload={handleFileUpload}
-                                        isLoading={isLoading}
-                                        error={error}
-                                        data={memoizedAnalysisData}
-                                    />
+                                    <AnalysisWrapper analysisId={analysisId}>
+                                        <ControlPanel
+                                            mode={mode}
+                                            setMode={handleModeChange}
+                                            onFileUpload={handleFileUpload}
+                                            isLoading={isLoading}
+                                            error={error}
+                                            data={memoizedAnalysisData}
+                                        />
+                                    </AnalysisWrapper>
                                 </AnalysisProvider>
                             </div>
                         </div>
@@ -234,43 +243,55 @@ const DashboardPage = () => {
                     {[
                         {
                             title: "Total Kota",
-                            value: memoizedAnalysisData.cities.length,
+                            value: memoizedAnalysisData?.cities?.length || 0,
                             icon: "🏙️",
                             color: "from-blue-500 to-blue-600",
-                            change: "+2.5%",
+                            change: memoizedAnalysisData ? "+2.5%" : "N/A",
                         },
                         {
                             title: "Klaster Aktif",
-                            value: memoizedAnalysisData.clusters.length,
+                            value: memoizedAnalysisData?.clusters?.length || 0,
                             icon: "🎯",
                             color: "from-green-500 to-green-600",
-                            change: "Optimal",
+                            change: memoizedAnalysisData ? "Optimal" : "N/A",
                         },
                         {
                             title: "Komoditas",
-                            value: Object.keys(memoizedAnalysisData.trends)
-                                .length,
+                            value: memoizedAnalysisData?.trends
+                                ? Object.keys(memoizedAnalysisData.trends)
+                                      .length
+                                : 0,
                             icon: "🌾",
                             color: "from-yellow-500 to-yellow-600",
-                            change: "Lengkap",
+                            change: memoizedAnalysisData ? "Lengkap" : "N/A",
                         },
                         {
                             title: "Periode Data",
-                            value: memoizedAnalysisData.years.length,
+                            value: memoizedAnalysisData?.years?.length || 0,
                             icon: "📅",
                             color: "from-purple-500 to-purple-600",
-                            change: "Tahun",
+                            change: memoizedAnalysisData ? "Tahun" : "N/A",
                         },
                     ].map((stat, index) => (
                         <div key={index} className="group">
-                            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300">
+                            <div
+                                className={`bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 ${
+                                    !memoizedAnalysisData ? "opacity-60" : ""
+                                }`}
+                            >
                                 <div className="flex items-center justify-between mb-4">
                                     <div
                                         className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300`}
                                     >
                                         {stat.icon}
                                     </div>
-                                    <span className="text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">
+                                    <span
+                                        className={`text-xs font-medium px-2 py-1 rounded-full ${
+                                            memoizedAnalysisData
+                                                ? "text-green-600 bg-green-100"
+                                                : "text-gray-500 bg-gray-100"
+                                        }`}
+                                    >
                                         {stat.change}
                                     </span>
                                 </div>

@@ -1,6 +1,7 @@
 import React from "react";
 import { useAnalysis } from "../../context/AnalysisContext";
 import { availableAlgorithms } from "../../constants/analysis";
+import DownloadButton from "../dashboard/DownloadButton";
 
 const SummaryBar = ({ isLoading, error, onFileUpload }) => {
     const { analysisConfig, selectedFile, actions } = useAnalysis();
@@ -60,6 +61,11 @@ const SummaryBar = ({ isLoading, error, onFileUpload }) => {
                     )}
                 </div>
             </button>
+
+            {/* Download PDF Button */}
+            <div className="w-full">
+                <DownloadButton />
+            </div>
 
             {error && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg">

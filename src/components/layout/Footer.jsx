@@ -64,7 +64,7 @@ const Footer = () => (
                             </div>
                             <div>
                                 <p className="text-white text-sm font-medium">
-                                    Nama Lengkap Anda
+                                    Emmanuel Garcia Sumargo
                                 </p>
                                 <p className="text-gray-400 text-xs">
                                     Teknik Informatika

@@ -34,6 +34,83 @@ const calculateSlope = (data) => {
     return denominator === 0 ? 0 : numerator / denominator;
 };
 
+// Calculate Pearson correlation between two arrays
+const calculatePearsonCorrelation = (x, y) => {
+    const n = x.length;
+    const meanX = calculateMean(x);
+    const meanY = calculateMean(y);
+
+    let numerator = 0;
+    let denomX = 0;
+    let denomY = 0;
+
+    for (let i = 0; i < n; i++) {
+        const diffX = x[i] - meanX;
+        const diffY = y[i] - meanY;
+        numerator += diffX * diffY;
+        denomX += diffX * diffX;
+        denomY += diffY * diffY;
+    }
+
+    const denominator = Math.sqrt(denomX * denomY);
+    return denominator === 0 ? 0 : numerator / denominator;
+};
+
+// Calculate correlation matrix from trends data
+const calculateCorrelationMatrix = (trends) => {
+    const commodities = Object.keys(trends);
+    const n = commodities.length;
+
+    // Create time series for each commodity (average across clusters)
+    const timeSeries = {};
+    commodities.forEach((commodity) => {
+        const allPrices = [];
+        const clusterData = trends[commodity];
+        const numPoints = clusterData[0].data.length;
+
+        for (let i = 0; i < numPoints; i++) {
+            const avgPrice =
+                clusterData.reduce((sum, cluster) => sum + cluster.data[i], 0) /
+                clusterData.length;
+            allPrices.push(avgPrice);
+        }
+        timeSeries[commodity] = allPrices;
+    });
+
+    // Calculate Pearson correlation between each pair
+    const matrix = [];
+    const pValues = [];
+
+    for (let i = 0; i < n; i++) {
+        const row = [];
+        const pRow = [];
+        for (let j = 0; j < n; j++) {
+            if (i === j) {
+                row.push(1.0);
+                pRow.push(1.0);
+            } else {
+                const corr = calculatePearsonCorrelation(
+                    timeSeries[commodities[i]],
+                    timeSeries[commodities[j]]
+                );
+                row.push(Math.round(corr * 100) / 100); // Round to 2 decimal places
+                pRow.push(corr > 0.7 ? 0.001 : 0.05); // Mock p-value
+            }
+        }
+        matrix.push(row);
+        pValues.push(pRow);
+    }
+
+    return {
+        commodities,
+        matrix,
+        pValues,
+        method: "pearson",
+        description:
+            "Correlation matrix showing price relationships between commodities",
+    };
+};
+
 // Generate monthly series (length = years.length * 12) from yearly values
 const generateMonthlySeries = (yearlyValues, yearsCount) => {
     const monthsPerYear = 12;
@@ -209,6 +286,9 @@ export const researchResults = {
 
     // Box Plot Data for visualization
     boxPlotData: {},
+
+    // Correlation Matrix Data for heatmap
+    correlationMatrix: {},
 };
 
 // Populate monthly trends for researchResults
@@ -336,6 +416,11 @@ export const researchResults = {
         statistics,
         clusterColors,
     };
+
+    // Generate correlation matrix for researchResults
+    researchResults.correlationMatrix = calculateCorrelationMatrix(
+        researchResults.trends
+    );
 })();
 
 export const userResults = {
@@ -491,6 +576,9 @@ export const userResults = {
 
     // Box Plot Data for visualization
     boxPlotData: {},
+
+    // Correlation Matrix Data for heatmap
+    correlationMatrix: {},
 };
 
 // Populate monthly trends for userResults
@@ -618,4 +706,9 @@ export const userResults = {
         statistics,
         clusterColors,
     };
+
+    // Generate correlation matrix for userResults
+    userResults.correlationMatrix = calculateCorrelationMatrix(
+        userResults.trends
+    );
 })();

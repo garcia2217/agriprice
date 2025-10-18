@@ -2,10 +2,11 @@ import React, { useState, useMemo } from "react";
 import TrendChart from "./TrendChart";
 import RadarChart from "./RadarChart";
 import BoxPlotChart from "./BoxPlotChart";
+import HeatmapChart from "./HeatmapChart";
 
 const ChartContainer = ({ data }) => {
     const [selectedCommodity, setSelectedCommodity] = useState("Beras");
-    const [chartType, setChartType] = useState("trend"); // 'trend', 'radar', or 'boxplot'
+    const [chartType, setChartType] = useState("trend"); // 'trend', 'radar', 'boxplot', or 'heatmap'
 
     const commodities = useMemo(() => Object.keys(data.trends), [data.trends]);
 
@@ -19,14 +20,18 @@ const ChartContainer = ({ data }) => {
                             ? "Tren Harga per Klaster"
                             : chartType === "radar"
                             ? "DNA Klaster - Profil Karakteristik"
-                            : "Distribusi Harga per Komoditas"}
+                            : chartType === "boxplot"
+                            ? "Distribusi Harga per Komoditas"
+                            : "Korelasi Harga Komoditas"}
                     </h3>
                     <p className="text-gray-600">
                         {chartType === "trend"
                             ? `Analisis perbandingan harga ${selectedCommodity.toLowerCase()} antar klaster`
                             : chartType === "radar"
                             ? "Visualisasi radar menampilkan profil unik setiap klaster berdasarkan harga, volatilitas, dan tren"
-                            : "Box plot menunjukkan distribusi harga setiap komoditas berdasarkan tahun dan klaster"}
+                            : chartType === "boxplot"
+                            ? "Box plot menunjukkan distribusi harga setiap komoditas berdasarkan tahun dan klaster"
+                            : "Heatmap menunjukkan korelasi harga antar komoditas"}
                     </p>
                 </div>
 
@@ -66,6 +71,16 @@ const ChartContainer = ({ data }) => {
                                 }`}
                             >
                                 📦 Distribusi
+                            </button>
+                            <button
+                                onClick={() => setChartType("heatmap")}
+                                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                                    chartType === "heatmap"
+                                        ? "bg-white text-red-600 shadow-sm"
+                                        : "text-gray-600 hover:text-gray-900"
+                                }`}
+                            >
+                                🔥 Korelasi
                             </button>
                         </div>
                     </div>
@@ -183,13 +198,15 @@ const ChartContainer = ({ data }) => {
                     />
                 ) : chartType === "radar" ? (
                     <RadarChart data={data} clusters={data.clusters} />
-                ) : (
+                ) : chartType === "boxplot" ? (
                     <BoxPlotChart
                         boxPlotData={data.boxPlotData}
                         clusters={data.clusters}
                         selectedCommodity={selectedCommodity}
                         onCommodityChange={setSelectedCommodity}
                     />
+                ) : (
+                    <HeatmapChart correlationData={data.correlationMatrix} />
                 )}
             </div>
 
@@ -200,6 +217,8 @@ const ChartContainer = ({ data }) => {
                         ? "bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200"
                         : chartType === "boxplot"
                         ? "bg-gradient-to-br from-orange-50 to-red-50 border-orange-200"
+                        : chartType === "heatmap"
+                        ? "bg-gradient-to-br from-red-50 to-pink-50 border-red-200"
                         : "bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200"
                 }`}
             >
@@ -210,6 +229,8 @@ const ChartContainer = ({ data }) => {
                                 ? "bg-purple-500"
                                 : chartType === "boxplot"
                                 ? "bg-orange-500"
+                                : chartType === "heatmap"
+                                ? "bg-red-500"
                                 : "bg-indigo-500"
                         }`}
                     >
@@ -217,6 +238,8 @@ const ChartContainer = ({ data }) => {
                             ? "🕷️"
                             : chartType === "boxplot"
                             ? "📦"
+                            : chartType === "heatmap"
+                            ? "🔥"
                             : "💡"}
                     </div>
                     <div>
@@ -226,6 +249,8 @@ const ChartContainer = ({ data }) => {
                                     ? "text-purple-900"
                                     : chartType === "boxplot"
                                     ? "text-orange-900"
+                                    : chartType === "heatmap"
+                                    ? "text-red-900"
                                     : "text-indigo-900"
                             }`}
                         >
@@ -233,6 +258,8 @@ const ChartContainer = ({ data }) => {
                                 ? "Cara Membaca DNA Klaster"
                                 : chartType === "boxplot"
                                 ? "Cara Membaca Box Plot"
+                                : chartType === "heatmap"
+                                ? "Cara Membaca Heatmap Korelasi"
                                 : "Insight Analisis"}
                         </h4>
                         <div
@@ -241,6 +268,8 @@ const ChartContainer = ({ data }) => {
                                     ? "text-purple-800"
                                     : chartType === "boxplot"
                                     ? "text-orange-800"
+                                    : chartType === "heatmap"
+                                    ? "text-red-800"
                                     : "text-indigo-800"
                             }`}
                         >
@@ -286,6 +315,27 @@ const ChartContainer = ({ data }) => {
                                     <p>
                                         • <strong>Outliers:</strong> Ditampilkan
                                         sebagai titik di luar whiskers
+                                    </p>
+                                </>
+                            ) : chartType === "heatmap" ? (
+                                <>
+                                    <p>
+                                        • <strong>Warna Merah:</strong> Korelasi
+                                        positif kuat (harga cenderung bergerak
+                                        searah)
+                                    </p>
+                                    <p>
+                                        • <strong>Warna Biru:</strong> Korelasi
+                                        negatif (harga bergerak berlawanan arah)
+                                    </p>
+                                    <p>
+                                        • <strong>Warna Putih:</strong> Tidak
+                                        ada korelasi atau korelasi lemah
+                                    </p>
+                                    <p>
+                                        • <strong>Nilai 1.00:</strong> Korelasi
+                                        sempurna (diagonal utama - komoditas
+                                        dengan dirinya sendiri)
                                     </p>
                                 </>
                             ) : (

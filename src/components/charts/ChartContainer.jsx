@@ -3,10 +3,12 @@ import TrendChart from "./TrendChart";
 import RadarChart from "./RadarChart";
 import BoxPlotChart from "./BoxPlotChart";
 import HeatmapChart from "./HeatmapChart";
+import ScatterPlotChart from "./ScatterPlotChart";
+import SilhouetteChart from "./SilhouetteChart";
 
 const ChartContainer = ({ data }) => {
     const [selectedCommodity, setSelectedCommodity] = useState("Beras");
-    const [chartType, setChartType] = useState("trend"); // 'trend', 'radar', 'boxplot', or 'heatmap'
+    const [chartType, setChartType] = useState("trend"); // 'trend', 'radar', 'boxplot', 'heatmap', 'scatter', or 'silhouette'
 
     const commodities = useMemo(() => Object.keys(data.trends), [data.trends]);
 
@@ -22,7 +24,11 @@ const ChartContainer = ({ data }) => {
                             ? "DNA Klaster - Profil Karakteristik"
                             : chartType === "boxplot"
                             ? "Distribusi Harga per Komoditas"
-                            : "Korelasi Harga Komoditas"}
+                            : chartType === "heatmap"
+                            ? "Korelasi Harga Komoditas"
+                            : chartType === "scatter"
+                            ? "Analisis Komponen Utama (PCA)"
+                            : "Analisis Silhouette Clustering"}
                     </h3>
                     <p className="text-gray-600">
                         {chartType === "trend"
@@ -31,7 +37,11 @@ const ChartContainer = ({ data }) => {
                             ? "Visualisasi radar menampilkan profil unik setiap klaster berdasarkan harga, volatilitas, dan tren"
                             : chartType === "boxplot"
                             ? "Box plot menunjukkan distribusi harga setiap komoditas berdasarkan tahun dan klaster"
-                            : "Heatmap menunjukkan korelasi harga antar komoditas"}
+                            : chartType === "heatmap"
+                            ? "Heatmap menunjukkan korelasi harga antar komoditas"
+                            : chartType === "scatter"
+                            ? "Scatter plot PCA menampilkan pengelompokan kota dalam ruang 2D yang direduksi"
+                            : "Evaluasi kualitas pengelompokan berdasarkan silhouette score dan Davies-Bouldin index"}
                     </p>
                 </div>
 
@@ -81,6 +91,26 @@ const ChartContainer = ({ data }) => {
                                 }`}
                             >
                                 🔥 Korelasi
+                            </button>
+                            <button
+                                onClick={() => setChartType("scatter")}
+                                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                                    chartType === "scatter"
+                                        ? "bg-white text-indigo-600 shadow-sm"
+                                        : "text-gray-600 hover:text-gray-900"
+                                }`}
+                            >
+                                📊 PCA
+                            </button>
+                            <button
+                                onClick={() => setChartType("silhouette")}
+                                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                                    chartType === "silhouette"
+                                        ? "bg-white text-green-600 shadow-sm"
+                                        : "text-gray-600 hover:text-gray-900"
+                                }`}
+                            >
+                                📈 Silhouette
                             </button>
                         </div>
                     </div>
@@ -205,8 +235,19 @@ const ChartContainer = ({ data }) => {
                         selectedCommodity={selectedCommodity}
                         onCommodityChange={setSelectedCommodity}
                     />
-                ) : (
+                ) : chartType === "heatmap" ? (
                     <HeatmapChart correlationData={data.correlationMatrix} />
+                ) : chartType === "scatter" ? (
+                    <ScatterPlotChart
+                        pcaData={data.pcaData}
+                        clusters={data.clusters}
+                    />
+                ) : (
+                    <SilhouetteChart
+                        clusteringMetrics={data.clusteringMetrics}
+                        citySilhouettes={data.citySilhouettes}
+                        clusters={data.clusters}
+                    />
                 )}
             </div>
 
@@ -219,6 +260,10 @@ const ChartContainer = ({ data }) => {
                         ? "bg-gradient-to-br from-orange-50 to-red-50 border-orange-200"
                         : chartType === "heatmap"
                         ? "bg-gradient-to-br from-red-50 to-pink-50 border-red-200"
+                        : chartType === "scatter"
+                        ? "bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-200"
+                        : chartType === "silhouette"
+                        ? "bg-gradient-to-br from-green-50 to-emerald-50 border-green-200"
                         : "bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200"
                 }`}
             >
@@ -231,6 +276,10 @@ const ChartContainer = ({ data }) => {
                                 ? "bg-orange-500"
                                 : chartType === "heatmap"
                                 ? "bg-red-500"
+                                : chartType === "scatter"
+                                ? "bg-indigo-500"
+                                : chartType === "silhouette"
+                                ? "bg-green-500"
                                 : "bg-indigo-500"
                         }`}
                     >
@@ -240,6 +289,10 @@ const ChartContainer = ({ data }) => {
                             ? "📦"
                             : chartType === "heatmap"
                             ? "🔥"
+                            : chartType === "scatter"
+                            ? "📊"
+                            : chartType === "silhouette"
+                            ? "📈"
                             : "💡"}
                     </div>
                     <div>
@@ -251,6 +304,10 @@ const ChartContainer = ({ data }) => {
                                     ? "text-orange-900"
                                     : chartType === "heatmap"
                                     ? "text-red-900"
+                                    : chartType === "scatter"
+                                    ? "text-indigo-900"
+                                    : chartType === "silhouette"
+                                    ? "text-green-900"
                                     : "text-indigo-900"
                             }`}
                         >
@@ -260,6 +317,10 @@ const ChartContainer = ({ data }) => {
                                 ? "Cara Membaca Box Plot"
                                 : chartType === "heatmap"
                                 ? "Cara Membaca Heatmap Korelasi"
+                                : chartType === "scatter"
+                                ? "Cara Membaca Scatter Plot PCA"
+                                : chartType === "silhouette"
+                                ? "Cara Membaca Analisis Silhouette"
                                 : "Insight Analisis"}
                         </h4>
                         <div
@@ -270,6 +331,10 @@ const ChartContainer = ({ data }) => {
                                     ? "text-orange-800"
                                     : chartType === "heatmap"
                                     ? "text-red-800"
+                                    : chartType === "scatter"
+                                    ? "text-indigo-800"
+                                    : chartType === "silhouette"
+                                    ? "text-green-800"
                                     : "text-indigo-800"
                             }`}
                         >
@@ -336,6 +401,52 @@ const ChartContainer = ({ data }) => {
                                         • <strong>Nilai 1.00:</strong> Korelasi
                                         sempurna (diagonal utama - komoditas
                                         dengan dirinya sendiri)
+                                    </p>
+                                </>
+                            ) : chartType === "scatter" ? (
+                                <>
+                                    <p>
+                                        • <strong>Titik-titik:</strong> Mewakili
+                                        kota dalam ruang 2D yang direduksi dari
+                                        data komoditas
+                                    </p>
+                                    <p>
+                                        • <strong>Warna:</strong> Menunjukkan
+                                        keanggotaan klaster berdasarkan
+                                        karakteristik harga
+                                    </p>
+                                    <p>
+                                        • <strong>Panah Biplot:</strong>{" "}
+                                        Menunjukkan kontribusi komoditas
+                                        terhadap komponen utama
+                                    </p>
+                                    <p>
+                                        • <strong>Zoom/Pan:</strong> Scroll
+                                        untuk zoom, drag untuk pan, reset untuk
+                                        kembali ke tampilan awal
+                                    </p>
+                                </>
+                            ) : chartType === "silhouette" ? (
+                                <>
+                                    <p>
+                                        • <strong>Bar Chart:</strong>{" "}
+                                        Menampilkan silhouette score setiap
+                                        kota, diurutkan dari tertinggi
+                                    </p>
+                                    <p>
+                                        • <strong>Warna Bar:</strong>{" "}
+                                        Menunjukkan keanggotaan klaster
+                                        berdasarkan warna yang konsisten
+                                    </p>
+                                    <p>
+                                        • <strong>Garis Rata-rata:</strong>{" "}
+                                        Garis merah putus-putus menunjukkan
+                                        overall silhouette score
+                                    </p>
+                                    <p>
+                                        • <strong>Interpretasi:</strong> Skor
+                                        &gt;0.5 = baik, 0.0-0.5 = sedang,
+                                        &lt;0.0 = buruk
                                     </p>
                                 </>
                             ) : (

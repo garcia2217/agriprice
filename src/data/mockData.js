@@ -111,6 +111,135 @@ const calculateCorrelationMatrix = (trends) => {
     };
 };
 
+// Generate PCA scatter plot data
+const generatePCAData = (cities, clusters, commodities) => {
+    // Generate random but plausible scatter coordinates grouped by cluster
+    const transformedData = [];
+
+    cities.forEach((city, index) => {
+        const clusterId = city.clusterId;
+
+        // Generate coordinates based on cluster with some randomness
+        let x, y;
+        switch (clusterId) {
+            case 0:
+                x = -2 + Math.random() * 2; // Left side
+                y = -1 + Math.random() * 2; // Bottom half
+                break;
+            case 1:
+                x = 0 + Math.random() * 2; // Right side
+                y = -1 + Math.random() * 2; // Bottom half
+                break;
+            case 2:
+                x = -1 + Math.random() * 2; // Center-left
+                y = 1 + Math.random() * 2; // Top half
+                break;
+            default:
+                x = -1 + Math.random() * 2;
+                y = -1 + Math.random() * 2;
+        }
+
+        transformedData.push({
+            x: parseFloat(x.toFixed(3)),
+            y: parseFloat(y.toFixed(3)),
+            clusterId: clusterId,
+            cityName: city.name,
+            originalIndex: index,
+        });
+    });
+
+    // Generate feature contributions for biplot arrows
+    const featureContributions = {
+        pc1: {},
+        pc2: {},
+    };
+
+    commodities.forEach((commodity) => {
+        // Generate random but realistic contributions
+        featureContributions.pc1[commodity] = parseFloat(
+            (Math.random() * 0.8 - 0.4).toFixed(3)
+        );
+        featureContributions.pc2[commodity] = parseFloat(
+            (Math.random() * 0.8 - 0.4).toFixed(3)
+        );
+    });
+
+    return {
+        components: {
+            pc1: {
+                explained_variance_ratio: 0.45,
+                explained_variance: 2.1,
+            },
+            pc2: {
+                explained_variance_ratio: 0.32,
+                explained_variance: 1.5,
+            },
+        },
+        transformed_data: transformedData,
+        feature_contributions: featureContributions,
+        method: "PCA",
+        description: "Principal Component Analysis of commodity price patterns",
+    };
+};
+
+// Generate clustering metrics and silhouette scores
+const generateClusteringMetrics = (cities, clusters) => {
+    // Generate random but realistic silhouette scores for each city
+    const citySilhouettes = cities.map((city) => {
+        const clusterId = city.clusterId;
+        const cluster = clusters.find((c) => c.id === clusterId);
+
+        // Generate silhouette score based on cluster with some randomness
+        let baseScore;
+        switch (clusterId) {
+            case 0:
+                baseScore = 0.7 + Math.random() * 0.25; // High-quality cluster
+                break;
+            case 1:
+                baseScore = 0.4 + Math.random() * 0.3; // Medium-quality cluster
+                break;
+            case 2:
+                baseScore = 0.2 + Math.random() * 0.4; // Lower-quality cluster
+                break;
+            default:
+                baseScore = 0.3 + Math.random() * 0.4;
+        }
+
+        return {
+            city: city.name,
+            silhouette: parseFloat(baseScore.toFixed(3)),
+            clusterId: clusterId,
+            clusterName: cluster.name,
+            coordinates: [city.lat, city.lon],
+        };
+    });
+
+    // Sort by silhouette score (descending)
+    citySilhouettes.sort((a, b) => b.silhouette - a.silhouette);
+
+    // Calculate overall metrics
+    const overallSilhouette =
+        citySilhouettes.reduce((sum, city) => sum + city.silhouette, 0) /
+        citySilhouettes.length;
+    const daviesBouldin = 0.3 + Math.random() * 0.4; // Random but realistic DB index
+
+    return {
+        clusteringMetrics: {
+            overall_silhouette: parseFloat(overallSilhouette.toFixed(3)),
+            davies_bouldin: parseFloat(daviesBouldin.toFixed(3)),
+            quality_assessment:
+                overallSilhouette > 0.7
+                    ? "Excellent"
+                    : overallSilhouette > 0.5
+                    ? "Good"
+                    : overallSilhouette > 0.3
+                    ? "Fair"
+                    : "Poor",
+        },
+        citySilhouettes: citySilhouettes,
+    };
+};
+
 // Generate monthly series (length = years.length * 12) from yearly values
 const generateMonthlySeries = (yearlyValues, yearsCount) => {
     const monthsPerYear = 12;
@@ -289,6 +418,13 @@ export const researchResults = {
 
     // Correlation Matrix Data for heatmap
     correlationMatrix: {},
+
+    // PCA Data for scatter plot
+    pcaData: {},
+
+    // Clustering Metrics for silhouette analysis
+    clusteringMetrics: {},
+    citySilhouettes: [],
 };
 
 // Populate monthly trends for researchResults
@@ -421,6 +557,22 @@ export const researchResults = {
     researchResults.correlationMatrix = calculateCorrelationMatrix(
         researchResults.trends
     );
+
+    // Generate PCA data for researchResults
+    researchResults.pcaData = generatePCAData(
+        researchResults.cities,
+        researchResults.clusters,
+        Object.keys(researchResults.trends)
+    );
+
+    // Generate clustering metrics for researchResults
+    const researchClusteringData = generateClusteringMetrics(
+        researchResults.cities,
+        researchResults.clusters
+    );
+    researchResults.clusteringMetrics =
+        researchClusteringData.clusteringMetrics;
+    researchResults.citySilhouettes = researchClusteringData.citySilhouettes;
 })();
 
 export const userResults = {
@@ -579,6 +731,13 @@ export const userResults = {
 
     // Correlation Matrix Data for heatmap
     correlationMatrix: {},
+
+    // PCA Data for scatter plot
+    pcaData: {},
+
+    // Clustering Metrics for silhouette analysis
+    clusteringMetrics: {},
+    citySilhouettes: [],
 };
 
 // Populate monthly trends for userResults
@@ -711,4 +870,19 @@ export const userResults = {
     userResults.correlationMatrix = calculateCorrelationMatrix(
         userResults.trends
     );
+
+    // Generate PCA data for userResults
+    userResults.pcaData = generatePCAData(
+        userResults.cities,
+        userResults.clusters,
+        Object.keys(userResults.trends)
+    );
+
+    // Generate clustering metrics for userResults
+    const userClusteringData = generateClusteringMetrics(
+        userResults.cities,
+        userResults.clusters
+    );
+    userResults.clusteringMetrics = userClusteringData.clusteringMetrics;
+    userResults.citySilhouettes = userClusteringData.citySilhouettes;
 })();

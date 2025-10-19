@@ -237,7 +237,11 @@ const ChartContainer = ({ data }) => {
                             years={data.years}
                         />
                     ) : chartType === "radar" ? (
-                        <RadarChart data={data} clusters={data.clusters} />
+                        <RadarChart
+                            data={data}
+                            clusters={data.clusters}
+                            commodityCount={commodities.length}
+                        />
                     ) : chartType === "boxplot" ? (
                         <BoxPlotChart
                             boxPlotData={data.boxPlotData}
@@ -248,11 +252,13 @@ const ChartContainer = ({ data }) => {
                     ) : chartType === "heatmap" ? (
                         <HeatmapChart
                             correlationData={data.correlationMatrix}
+                            commodityCount={commodities.length}
                         />
                     ) : chartType === "scatter" ? (
                         <ScatterPlotChart
                             pcaData={data.pcaData}
                             clusters={data.clusters}
+                            commodityCount={commodities.length}
                         />
                     ) : (
                         <SilhouetteChart

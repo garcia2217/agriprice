@@ -121,7 +121,8 @@ const UploadPanel = () => {
                             Template Format Data
                         </div>
                         <a
-                            href="#"
+                            href="/templates/template.zip"
+                            download="Template.zip"
                             className="inline-flex items-center space-x-2 text-xs font-medium text-yellow-800 hover:text-yellow-900 underline"
                         >
                             <span>⬇️</span>

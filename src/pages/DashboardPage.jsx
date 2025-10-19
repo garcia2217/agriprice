@@ -1,5 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
-import { researchResults } from "../data/mockData";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import MapComponent from "../components/dashboard/MapComponent";
 import ControlPanel from "../components/dashboard/ControlPanel";
 import { AnalysisProvider } from "../context/AnalysisContext";
@@ -8,11 +7,34 @@ import AnalysisWrapper from "../components/dashboard/AnalysisWrapper";
 
 const DashboardPage = () => {
     const [mode, setMode] = useState("research");
-    const [analysisData, setAnalysisData] = useState(researchResults);
-    const [isLoading, setIsLoading] = useState(false);
+    const [analysisData, setAnalysisData] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [analysisId, setAnalysisId] = useState(null);
     const [customAnalysisData, setCustomAnalysisData] = useState(null);
+    const [researchResults, setResearchResults] = useState(null);
+
+    // Load research results on component mount
+    useEffect(() => {
+        const loadResearchResults = async () => {
+            try {
+                setIsLoading(true);
+                const response = await fetch("/data/researchResults.json");
+                if (!response.ok)
+                    throw new Error("Failed to load research data");
+                const data = await response.json();
+                setResearchResults(data);
+                setAnalysisData(data);
+            } catch (err) {
+                console.error("Error loading research results:", err);
+                setError("Failed to load research data");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadResearchResults();
+    }, []);
 
     const handleFileUpload = useCallback(async ({ source, file, config }) => {
         try {
@@ -108,10 +130,22 @@ const DashboardPage = () => {
                 setError(null);
             }
         },
-        [customAnalysisData]
+        [customAnalysisData, researchResults]
     );
 
     const memoizedAnalysisData = useMemo(() => analysisData, [analysisData]);
+
+    // Show loading state while data is being fetched
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading research data...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex-grow bg-gradient-to-br from-gray-50 to-white min-h-screen">

@@ -204,6 +204,7 @@ const BoxPlotChart = ({
                         },
                     },
                     y: {
+                        beginAtZero: false,
                         title: {
                             display: true,
                             text: "Harga (Rp)",

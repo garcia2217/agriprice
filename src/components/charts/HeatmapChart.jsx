@@ -19,12 +19,12 @@ Chart.register(
     Title
 );
 
-const HeatmapChart = ({ correlationData }) => {
+const HeatmapChart = ({ correlationData, commodityCount }) => {
     const canvasRef = useRef(null);
     const chartRef = useRef(null);
 
     const { commodities, matrix, pValues, method, description } =
-        correlationData;
+        correlationData || {};
 
     useEffect(() => {
         if (!canvasRef.current) return;
@@ -118,14 +118,14 @@ const HeatmapChart = ({ correlationData }) => {
                         width: ({ chart }) => {
                             return (
                                 (chart.chartArea || {}).width /
-                                    commodities.length -
+                                    (commodities?.length || 1) -
                                 2
                             );
                         },
                         height: ({ chart }) => {
                             return (
                                 (chart.chartArea || {}).height /
-                                    commodities.length -
+                                    (commodities?.length || 1) -
                                 2
                             );
                         },
@@ -178,7 +178,7 @@ const HeatmapChart = ({ correlationData }) => {
                 scales: {
                     x: {
                         type: "category",
-                        labels: commodities,
+                        labels: commodities || [],
                         title: {
                             display: false,
                         },
@@ -196,7 +196,7 @@ const HeatmapChart = ({ correlationData }) => {
                     },
                     y: {
                         type: "category",
-                        labels: commodities,
+                        labels: commodities || [],
                         title: {
                             display: false,
                         },
@@ -226,18 +226,95 @@ const HeatmapChart = ({ correlationData }) => {
         };
     }, [commodities, matrix, pValues, method]);
 
+    // Check if correlationData exists (backend might not send it if insufficient commodities)
+    if (!correlationData) {
+        return (
+            <div className="w-full max-w-6xl mx-auto space-y-6">
+                {/* Header */}
+                <div className="text-center">
+                    <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                        Matriks Korelasi Harga Komoditas
+                    </h2>
+                    <p className="text-gray-600 text-lg">
+                        Analisis korelasi antar komoditas
+                    </p>
+                </div>
+
+                {/* Empty State */}
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
+                    <div className="p-12 text-center">
+                        <div className="text-6xl mb-4">🔥</div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                            Data Korelasi Tidak Tersedia
+                        </h3>
+                        <p className="text-gray-600 mb-4 max-w-md mx-auto">
+                            Server tidak dapat menghasilkan data korelasi karena
+                            jumlah komoditas tidak mencukupi.
+                        </p>
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-lg mx-auto">
+                            <p className="text-sm text-red-800">
+                                <strong>Solusi:</strong> Pilih minimal 2
+                                komoditas dalam konfigurasi analisis untuk
+                                melihat matriks korelasi.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Check if we have enough commodities for correlation analysis
+    if (commodityCount < 2) {
+        return (
+            <div className="w-full max-w-6xl mx-auto space-y-6">
+                {/* Header */}
+                <div className="text-center">
+                    <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                        Matriks Korelasi Harga Komoditas
+                    </h2>
+                    <p className="text-gray-600 text-lg">
+                        Analisis korelasi antar komoditas
+                    </p>
+                </div>
+
+                {/* Empty State */}
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
+                    <div className="p-12 text-center">
+                        <div className="text-6xl mb-4">🔥</div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                            Heatmap Korelasi Tidak Dapat Dihasilkan
+                        </h3>
+                        <p className="text-gray-600 mb-4 max-w-md mx-auto">
+                            Analisis korelasi memerlukan minimal 2 komoditas
+                            untuk menghitung hubungan antar variabel. Saat ini
+                            hanya {commodityCount} komoditas yang dianalisis.
+                        </p>
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-lg mx-auto">
+                            <p className="text-sm text-red-800">
+                                <strong>Solusi:</strong> Pilih minimal 2
+                                komoditas dalam konfigurasi analisis untuk
+                                melihat matriks korelasi.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     // Calculate statistics
     const avgCorrelation = (
-        matrix
+        (matrix || [])
             .flat()
-            .filter((v, i) => i % (commodities.length + 1) !== 0)
+            .filter((v, i) => i % ((commodities?.length || 1) + 1) !== 0)
             .reduce((sum, val) => sum + val, 0) /
-        (commodities.length * (commodities.length - 1))
+        ((commodities?.length || 1) * ((commodities?.length || 1) - 1))
     ).toFixed(3);
 
-    const strongCorrelations = matrix
+    const strongCorrelations = (matrix || [])
         .flat()
-        .filter((v, i) => i % (commodities.length + 1) !== 0)
+        .filter((v, i) => i % ((commodities?.length || 1) + 1) !== 0)
         .filter((v) => Math.abs(v) > 0.5).length;
 
     return (
@@ -330,7 +407,9 @@ const HeatmapChart = ({ correlationData }) => {
                     </div>
                     <div className="text-2xl font-bold text-green-900">
                         {strongCorrelations} dari{" "}
-                        {(commodities.length * (commodities.length - 1)) / 2}
+                        {((commodities?.length || 1) *
+                            ((commodities?.length || 1) - 1)) /
+                            2}
                     </div>
                 </div>
             </div>

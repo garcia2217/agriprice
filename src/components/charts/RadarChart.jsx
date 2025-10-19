@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 
-const RadarChart = ({ data, clusters }) => {
+const RadarChart = ({ data, clusters, commodityCount }) => {
     const [selectedCluster, setSelectedCluster] = useState(0);
     const [showAllClusters, setShowAllClusters] = useState(false);
 
@@ -65,6 +65,50 @@ const RadarChart = ({ data, clusters }) => {
         // Convert normalized value (0-1) to percentage for display
         return `${(normalizedValue * 100).toFixed(0)}%`;
     };
+
+    // Check if we have enough commodities for radar chart
+    if (commodityCount < 3) {
+        return (
+            <div className="bg-white rounded-xl shadow-lg p-6">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center">
+                            <span className="text-white text-lg">🕷️</span>
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-gray-900">
+                                DNA Klaster
+                            </h3>
+                            <p className="text-sm text-gray-500">
+                                Profil karakteristik unik setiap klaster
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Empty State */}
+                <div className="text-center py-12">
+                    <div className="text-6xl mb-4">🎯</div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                        Radar Chart Tidak Dapat Dihasilkan
+                    </h3>
+                    <p className="text-gray-600 mb-4 max-w-md mx-auto">
+                        Radar chart memerlukan minimal 3 komoditas untuk
+                        visualisasi yang bermakna. Saat ini hanya{" "}
+                        {commodityCount} komoditas yang dianalisis.
+                    </p>
+                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 max-w-lg mx-auto">
+                        <p className="text-sm text-purple-800">
+                            <strong>Solusi:</strong> Pilih minimal 3 komoditas
+                            dalam konfigurasi analisis untuk melihat profil
+                            klaster radar chart.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-white rounded-xl shadow-lg p-6">

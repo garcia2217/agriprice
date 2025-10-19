@@ -75,7 +75,7 @@ const ControlPanel = ({
                     )}
 
                     {/* Research Stats */}
-                    <div className="mt-4 p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                    {/* <div className="mt-4 p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
                         <div className="text-center">
                             <div className="text-xl mb-2">📈</div>
                             <div className="text-xs font-medium text-blue-800">
@@ -88,7 +88,7 @@ const ControlPanel = ({
                                 Silhouette Score: 0.847
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             ) : (
                 /* User Mode with Tabs */

@@ -84,7 +84,7 @@ const UploadPanel = () => {
                     </div>
 
                     {selectedFile ? (
-                        <div className="space-y-1">
+                        <div className="space-y-2">
                             <div className="flex items-center justify-center space-x-2 text-green-600">
                                 <span>✅</span>
                                 <span className="font-medium text-sm">
@@ -94,6 +94,12 @@ const UploadPanel = () => {
                             <div className="text-xs text-gray-500">
                                 {(selectedFile.size / 1024).toFixed(1)} KB
                             </div>
+                            <button
+                                onClick={() => setSelectedFile(null)}
+                                className="px-3 py-1 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition-colors"
+                            >
+                                Hapus File
+                            </button>
                         </div>
                     ) : (
                         <div className="space-y-2">

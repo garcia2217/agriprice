@@ -4,21 +4,27 @@ import ControlPanel from "../components/dashboard/ControlPanel";
 import { AnalysisProvider } from "../context/AnalysisContext";
 import ChartContainer from "../components/charts/ChartContainer";
 import AnalysisWrapper from "../components/dashboard/AnalysisWrapper";
+import ValidationHandler from "../components/dashboard/ValidationHandler";
+import ValidationFlowHandler from "../components/dashboard/ValidationFlowHandler";
 
 const DashboardPage = () => {
     const [mode, setMode] = useState("research");
     const [analysisData, setAnalysisData] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [error, setError] = useState(null);
     const [analysisId, setAnalysisId] = useState(null);
     const [customAnalysisData, setCustomAnalysisData] = useState(null);
     const [researchResults, setResearchResults] = useState(null);
+    const [pendingValidationResult, setPendingValidationResult] =
+        useState(null);
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
     // Load research results on component mount
     useEffect(() => {
         const loadResearchResults = async () => {
             try {
-                setIsLoading(true);
+                setIsInitialLoading(true);
                 const response = await fetch("/data/researchResults.json");
                 if (!response.ok)
                     throw new Error("Failed to load research data");
@@ -29,91 +35,136 @@ const DashboardPage = () => {
                 console.error("Error loading research results:", err);
                 setError("Failed to load research data");
             } finally {
-                setIsLoading(false);
+                setIsInitialLoading(false);
             }
         };
 
         loadResearchResults();
     }, []);
 
-    const handleFileUpload = useCallback(async ({ source, file, config }) => {
-        try {
-            setIsLoading(true);
-            setError(null);
+    const handleFileUpload = useCallback(
+        async ({ source, file, config, validationId }) => {
+            try {
+                setIsLoading(true);
+                setError(null);
 
-            if (source === "upload") {
-                if (!file) {
-                    setError("Silakan pilih file ZIP untuk diunggah.");
-                    return;
-                }
-                if (!file.name.endsWith(".zip")) {
-                    setError(
-                        "Format file tidak valid. Harap unggah file .zip."
+                if (source === "upload") {
+                    if (!file) {
+                        setError("Silakan pilih file ZIP untuk diunggah.");
+                        return;
+                    }
+                    if (!file.name.endsWith(".zip")) {
+                        setError(
+                            "Format file tidak valid. Harap unggah file .zip."
+                        );
+                        return;
+                    }
+
+                    // Call validation endpoint first
+                    const formData = new FormData();
+                    formData.append("file", file);
+
+                    const validationResponse = await fetch(
+                        "http://127.0.0.1:8000/clustering_app/validate-data",
+                        {
+                            method: "POST",
+                            body: formData,
+                        }
                     );
-                    return;
-                }
 
-                const formData = new FormData();
-                formData.append("file", file);
-                formData.append("config", JSON.stringify(config));
-
-                const response = await fetch(
-                    "http://127.0.0.1:8000/clustering_app/analyze",
-                    {
-                        method: "POST",
-                        body: formData,
+                    if (!validationResponse.ok) {
+                        throw new Error(
+                            `Validation Error: ${validationResponse.status}`
+                        );
                     }
-                );
 
-                if (!response.ok) {
-                    throw new Error(`Server Error: ${response.status}`);
-                }
+                    const validationResult = await validationResponse.json();
+                    console.log("=== VALIDATION RESPONSE ===");
+                    console.log(validationResult);
 
-                const result = await response.json();
-                console.log("=== RESPONSE DARI DJANGO ===");
-                console.log(result);
-                setAnalysisData(result); // update dashboard dengan data dari backend
-                setCustomAnalysisData(result); // Store custom analysis results
+                    // Store validation result to be handled by ValidationFlowHandler
+                    setPendingValidationResult(validationResult);
+                    return; // Don't proceed with analysis yet
+                } else if (source === "validated_upload") {
+                    // Handle validated analysis submission
+                    const response = await fetch(
+                        "http://127.0.0.1:8000/clustering_app/analyze",
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                validation_id: validationId,
+                                commodities: config.commodities,
+                                cities: config.cities,
+                                provinces: config.provinces,
+                                year_min: config.yearRange.start,
+                                year_max: config.yearRange.end,
+                                algorithms: config.algorithms,
+                                num_clusters: config.numClusters,
+                            }),
+                        }
+                    );
 
-                // Store analysis_id if present in response
-                if (result.analysis_id) {
-                    setAnalysisId(result.analysis_id);
-                    console.log("Analysis ID received:", result.analysis_id);
-                }
-            } else {
-                // App data mode: call backend with configuration only (no file)
-                const response = await fetch(
-                    "http://127.0.0.1:8000/clustering_app/analyze",
-                    {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(config),
+                    if (!response.ok) {
+                        throw new Error(`Server Error: ${response.status}`);
                     }
-                );
 
-                if (!response.ok) {
-                    throw new Error(`Server Error: ${response.status}`);
+                    const result = await response.json();
+                    console.log("=== VALIDATED ANALYSIS RESPONSE ===");
+                    console.log(result);
+                    setAnalysisData(result);
+                    setCustomAnalysisData(result);
+
+                    if (result.analysis_id) {
+                        setAnalysisId(result.analysis_id);
+                        console.log(
+                            "Analysis ID received:",
+                            result.analysis_id
+                        );
+                    }
+                } else {
+                    // App data mode: call backend with configuration only (no file)
+                    const response = await fetch(
+                        "http://127.0.0.1:8000/clustering_app/analyze",
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(config),
+                        }
+                    );
+
+                    if (!response.ok) {
+                        throw new Error(`Server Error: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    console.log("=== RESPONSE DARI DJANGO (APP DATA) ===");
+                    console.log(result);
+                    setAnalysisData(result);
+                    setCustomAnalysisData(result); // Store custom analysis results
+
+                    // Store analysis_id if present in response
+                    if (result.analysis_id) {
+                        setAnalysisId(result.analysis_id);
+                        console.log(
+                            "Analysis ID received:",
+                            result.analysis_id
+                        );
+                    }
+
+                    // Show success message
+                    setShowSuccessMessage(true);
+                    setTimeout(() => setShowSuccessMessage(false), 5000); // Auto-hide after 5 seconds
                 }
-
-                const result = await response.json();
-                console.log("=== RESPONSE DARI DJANGO (APP DATA) ===");
-                console.log(result);
-                setAnalysisData(result);
-                setCustomAnalysisData(result); // Store custom analysis results
-
-                // Store analysis_id if present in response
-                if (result.analysis_id) {
-                    setAnalysisId(result.analysis_id);
-                    console.log("Analysis ID received:", result.analysis_id);
-                }
+            } catch (err) {
+                console.error(err);
+                setError(err.message || "Gagal memproses permintaan.");
+            } finally {
+                setIsLoading(false);
             }
-        } catch (err) {
-            console.error(err);
-            setError(err.message || "Gagal memproses permintaan.");
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
+        },
+        []
+    );
 
     const handleModeChange = useCallback(
         (newMode) => {
@@ -135,8 +186,70 @@ const DashboardPage = () => {
 
     const memoizedAnalysisData = useMemo(() => analysisData, [analysisData]);
 
-    // Show loading state while data is being fetched
-    if (isLoading) {
+    // Validation handlers
+    const handleValidatedAnalysis = useCallback(
+        async (validationId, config) => {
+            try {
+                setIsLoading(true);
+                setError(null);
+
+                const response = await fetch(
+                    "http://127.0.0.1:8000/clustering_app/analyze",
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            validation_id: validationId,
+                            algorithms: config.algorithms,
+                            numClusters: config.numClusters,
+                            commodities: config.commodities,
+                            yearRange: {
+                                start: config.yearRange.start,
+                                end: config.yearRange.end,
+                            },
+                            locations: {
+                                provinces: config.provinces,
+                                cities: config.cities,
+                            },
+                        }),
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(`Server Error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log("=== VALIDATED ANALYSIS RESPONSE ===");
+                console.log(result);
+                setAnalysisData(result);
+                setCustomAnalysisData(result);
+
+                if (result.analysis_id) {
+                    setAnalysisId(result.analysis_id);
+                    console.log("Analysis ID received:", result.analysis_id);
+                }
+
+                // Show success message
+                setShowSuccessMessage(true);
+                setTimeout(() => setShowSuccessMessage(false), 5000); // Auto-hide after 5 seconds
+            } catch (err) {
+                console.error(err);
+                setError(err.message || "Gagal memproses permintaan.");
+            } finally {
+                setIsLoading(false);
+            }
+        },
+        []
+    );
+
+    const handleReupload = useCallback(() => {
+        // Clear selected file and close error modal
+        // This will be handled by context
+    }, []);
+
+    // Show loading state only for initial data loading
+    if (isInitialLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-center">
@@ -149,6 +262,37 @@ const DashboardPage = () => {
 
     return (
         <div className="flex-grow bg-gradient-to-br from-gray-50 to-white min-h-screen">
+            {/* Success Message Popup */}
+            {showSuccessMessage && (
+                <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right duration-300">
+                    <div className="bg-green-50 border border-green-200 rounded-lg shadow-lg p-4 max-w-sm">
+                        <div className="flex items-center space-x-3">
+                            <div className="flex-shrink-0">
+                                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                    <span className="text-green-600 text-lg">
+                                        ✓
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="text-sm font-semibold text-green-800">
+                                    Analisis Berhasil!
+                                </h3>
+                                <p className="text-sm text-green-700 mt-1">
+                                    Data clustering telah diproses dan
+                                    ditampilkan di dashboard.
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setShowSuccessMessage(false)}
+                                className="flex-shrink-0 text-green-400 hover:text-green-600 transition-colors"
+                            >
+                                <span className="text-lg">×</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Header */}
             <div className="bg-white border-b border-gray-200 shadow-sm">
                 <div className="max-w-7xl mx-auto px-6 py-8">
@@ -231,6 +375,25 @@ const DashboardPage = () => {
                                             isLoading={isLoading}
                                             error={error}
                                             data={memoizedAnalysisData}
+                                        />
+                                        <ValidationFlowHandler
+                                            validationResult={
+                                                pendingValidationResult
+                                            }
+                                            onValidatedAnalysis={
+                                                handleValidatedAnalysis
+                                            }
+                                            onReupload={handleReupload}
+                                            onClear={() =>
+                                                setPendingValidationResult(null)
+                                            }
+                                        />
+                                        <ValidationHandler
+                                            onValidatedAnalysis={
+                                                handleValidatedAnalysis
+                                            }
+                                            onReupload={handleReupload}
+                                            isLoading={isLoading}
                                         />
                                     </AnalysisWrapper>
                                 </AnalysisProvider>

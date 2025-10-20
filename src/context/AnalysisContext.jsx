@@ -28,6 +28,10 @@ export const AnalysisProvider = ({ children, defaultMode = "research" }) => {
     });
     const [selectedFile, setSelectedFile] = useState(null);
     const [analysisId, setAnalysisId] = useState(null);
+    const [validationResult, setValidationResult] = useState(null);
+    const [validationConfig, setValidationConfig] = useState(null);
+    const [showValidationModal, setShowValidationModal] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
     const [ui, setUi] = useState({
         activeTab: "algorithms",
         dragActive: false,
@@ -144,6 +148,116 @@ export const AnalysisProvider = ({ children, defaultMode = "research" }) => {
         }));
     }, []);
 
+    // Validation modal actions
+    const setValidationCommodities = useCallback((commodities) => {
+        setValidationConfig((p) => ({ ...p, commodities }));
+    }, []);
+
+    const setValidationCities = useCallback((cities) => {
+        setValidationConfig((p) => ({ ...p, cities }));
+    }, []);
+
+    const setValidationProvinces = useCallback((provinces) => {
+        setValidationConfig((p) => ({ ...p, provinces }));
+    }, []);
+
+    const setValidationYearRange = useCallback((key, value) => {
+        const numeric = Number(value);
+        setValidationConfig((p) => {
+            const next = {
+                ...p,
+                yearRange: { ...p.yearRange, [key]: numeric },
+            };
+            if (next.yearRange.start > next.yearRange.end) {
+                if (key === "start") next.yearRange.end = numeric;
+                else next.yearRange.start = numeric;
+            }
+            return next;
+        });
+    }, []);
+
+    const selectAllValidationCommodities = useCallback(() => {
+        if (validationResult?.available_data?.commodities) {
+            setValidationConfig((p) => ({
+                ...p,
+                commodities: [...validationResult.available_data.commodities],
+            }));
+        }
+    }, [validationResult]);
+
+    const deselectAllValidationCommodities = useCallback(() => {
+        setValidationConfig((p) => ({ ...p, commodities: [] }));
+    }, []);
+
+    const selectAllValidationLocations = useCallback(() => {
+        if (validationResult?.available_data) {
+            const { provinces } = validationResult.available_data;
+            const allCities = provinces ? Object.values(provinces).flat() : [];
+            const allProvinces = provinces ? Object.keys(provinces) : [];
+
+            setValidationConfig((p) => ({
+                ...p,
+                cities: allCities,
+                provinces: allProvinces,
+            }));
+        }
+    }, [validationResult]);
+
+    const deselectAllValidationLocations = useCallback(() => {
+        setValidationConfig((p) => ({
+            ...p,
+            cities: [],
+            provinces: [],
+        }));
+    }, []);
+
+    const openValidationModal = useCallback((result) => {
+        setValidationResult(result);
+        // Initialize validation config with all items pre-selected
+        const { provinces } = result.available_data;
+        const allCities = provinces ? Object.values(provinces).flat() : [];
+        const allProvinces = provinces ? Object.keys(provinces) : [];
+
+        setValidationConfig({
+            commodities: result.available_data.commodities || [],
+            cities: allCities,
+            provinces: allProvinces,
+            yearRange: {
+                start: Math.min(...result.available_data.years),
+                end: Math.max(...result.available_data.years),
+            },
+        });
+        setShowValidationModal(true);
+    }, []);
+
+    const closeValidationModal = useCallback(() => {
+        setShowValidationModal(false);
+        setValidationResult(null);
+        setValidationConfig(null);
+    }, []);
+
+    const openErrorModal = useCallback((result) => {
+        setValidationResult(result);
+        setShowErrorModal(true);
+    }, []);
+
+    const closeErrorModal = useCallback(() => {
+        setShowErrorModal(false);
+        setValidationResult(null);
+    }, []);
+
+    const handleValidationResult = useCallback(
+        (result) => {
+            setValidationResult(result);
+            if (result && result.valid) {
+                openValidationModal(result);
+            } else if (result && !result.valid) {
+                openErrorModal(result);
+            }
+        },
+        [openValidationModal, openErrorModal]
+    );
+
     const submitAnalysis = useCallback(
         ({ onFileUpload }) => {
             const isUploadMode = analysisConfig.dataSource === "upload";
@@ -165,6 +279,29 @@ export const AnalysisProvider = ({ children, defaultMode = "research" }) => {
         [analysisConfig, selectedFile]
     );
 
+    const submitValidatedAnalysis = useCallback(
+        ({ validationId, onFileUpload }) => {
+            if (!validationConfig) return;
+
+            const payload = {
+                source: "validated_upload",
+                validationId,
+                config: {
+                    algorithms: analysisConfig.algorithms,
+                    numClusters: analysisConfig.numClusters,
+                    commodities: validationConfig.commodities,
+                    yearRange: validationConfig.yearRange,
+                    locations: {
+                        provinces: validationConfig.provinces,
+                        cities: validationConfig.cities,
+                    },
+                },
+            };
+            onFileUpload(payload);
+        },
+        [analysisConfig, validationConfig]
+    );
+
     const value = useMemo(
         () => ({
             mode,
@@ -172,6 +309,10 @@ export const AnalysisProvider = ({ children, defaultMode = "research" }) => {
             analysisConfig,
             selectedFile,
             analysisId,
+            validationResult,
+            validationConfig,
+            showValidationModal,
+            showErrorModal,
             ui,
             setSelectedFile,
             setAnalysisId,
@@ -191,6 +332,20 @@ export const AnalysisProvider = ({ children, defaultMode = "research" }) => {
                 selectAllLocations,
                 deselectAllLocations,
                 submitAnalysis,
+                setValidationCommodities,
+                setValidationCities,
+                setValidationProvinces,
+                setValidationYearRange,
+                selectAllValidationCommodities,
+                deselectAllValidationCommodities,
+                selectAllValidationLocations,
+                deselectAllValidationLocations,
+                openValidationModal,
+                closeValidationModal,
+                openErrorModal,
+                closeErrorModal,
+                submitValidatedAnalysis,
+                handleValidationResult,
             },
         }),
         [
@@ -198,6 +353,10 @@ export const AnalysisProvider = ({ children, defaultMode = "research" }) => {
             analysisConfig,
             selectedFile,
             analysisId,
+            validationResult,
+            validationConfig,
+            showValidationModal,
+            showErrorModal,
             ui,
             setDataSource,
             toggleAlgorithm,
@@ -214,6 +373,20 @@ export const AnalysisProvider = ({ children, defaultMode = "research" }) => {
             selectAllLocations,
             deselectAllLocations,
             submitAnalysis,
+            setValidationCommodities,
+            setValidationCities,
+            setValidationProvinces,
+            setValidationYearRange,
+            selectAllValidationCommodities,
+            deselectAllValidationCommodities,
+            selectAllValidationLocations,
+            deselectAllValidationLocations,
+            openValidationModal,
+            closeValidationModal,
+            openErrorModal,
+            closeErrorModal,
+            submitValidatedAnalysis,
+            handleValidationResult,
         ]
     );
 

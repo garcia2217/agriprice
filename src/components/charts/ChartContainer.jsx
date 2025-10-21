@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import TrendChart from "./TrendChart";
 import RadarChart from "./RadarChart";
 import BoxPlotChart from "./BoxPlotChart";
@@ -20,6 +20,16 @@ const ChartContainer = ({ data }) => {
         if (!hasData) return [];
         return Object.keys(data.trends);
     }, [data, hasData]);
+
+    // Reset selected commodity when new data arrives
+    useEffect(() => {
+        if (hasData && commodities.length > 0) {
+            // Reset to first available commodity when new data arrives
+            if (!commodities.includes(selectedCommodity)) {
+                setSelectedCommodity(commodities[0]);
+            }
+        }
+    }, [hasData, commodities, selectedCommodity]);
 
     return (
         <div className="space-y-6">
@@ -232,18 +242,25 @@ const ChartContainer = ({ data }) => {
                 >
                     {chartType === "trend" ? (
                         <TrendChart
+                            key={`trend-${selectedCommodity}-${
+                                data?.analysis_id || "default"
+                            }`}
                             commodityData={data.trends[selectedCommodity]}
                             clusters={data.clusters}
                             years={data.years}
                         />
                     ) : chartType === "radar" ? (
                         <RadarChart
+                            key={`radar-${data?.analysis_id || "default"}`}
                             data={data}
                             clusters={data.clusters}
                             commodityCount={commodities.length}
                         />
                     ) : chartType === "boxplot" ? (
                         <BoxPlotChart
+                            key={`boxplot-${selectedCommodity}-${
+                                data?.analysis_id || "default"
+                            }`}
                             boxPlotData={data.boxPlotData}
                             clusters={data.clusters}
                             selectedCommodity={selectedCommodity}
@@ -251,17 +268,20 @@ const ChartContainer = ({ data }) => {
                         />
                     ) : chartType === "heatmap" ? (
                         <HeatmapChart
+                            key={`heatmap-${data?.analysis_id || "default"}`}
                             correlationData={data.correlationMatrix}
                             commodityCount={commodities.length}
                         />
                     ) : chartType === "scatter" ? (
                         <ScatterPlotChart
+                            key={`scatter-${data?.analysis_id || "default"}`}
                             pcaData={data.pcaData}
                             clusters={data.clusters}
                             commodityCount={commodities.length}
                         />
                     ) : (
                         <SilhouetteChart
+                            key={`silhouette-${data?.analysis_id || "default"}`}
                             clusteringMetrics={data.clusteringMetrics}
                             citySilhouettes={data.citySilhouettes}
                             clusters={data.clusters}

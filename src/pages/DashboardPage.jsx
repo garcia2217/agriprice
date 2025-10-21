@@ -72,13 +72,48 @@ const DashboardPage = () => {
                         }
                     );
 
+                    console.log("=== VALIDATION RESPONSE STATUS ===");
+                    console.log("Status:", validationResponse.status);
+                    console.log("Status Text:", validationResponse.statusText);
+                    console.log("Headers:", validationResponse.headers);
+
                     if (!validationResponse.ok) {
+                        const errorData = await validationResponse.json();
+                        console.error("Validation Error Response:", errorData);
+
+                        // Extract error message from the response structure
+                        let errorMessage = "Validation failed";
+                        if (errorData.message) {
+                            errorMessage = errorData.message;
+                        } else if (
+                            errorData.errors &&
+                            errorData.errors.length > 0
+                        ) {
+                            errorMessage = errorData.errors.join(", ");
+                        } else if (
+                            errorData.details &&
+                            errorData.details.format_errors &&
+                            errorData.details.format_errors.length > 0
+                        ) {
+                            errorMessage =
+                                errorData.details.format_errors.join(", ");
+                        }
+
+                        throw new Error(`Validation Error: ${errorMessage}`);
+                    }
+
+                    let validationResult;
+                    try {
+                        const responseText = await validationResponse.text();
+                        console.log("Raw response:", responseText);
+                        validationResult = JSON.parse(responseText);
+                    } catch (parseError) {
+                        console.error("JSON Parse Error:", parseError);
                         throw new Error(
-                            `Validation Error: ${validationResponse.status}`
+                            "Invalid JSON response from validation endpoint"
                         );
                     }
 
-                    const validationResult = await validationResponse.json();
                     console.log("=== VALIDATION RESPONSE ===");
                     console.log(validationResult);
 
@@ -133,8 +168,49 @@ const DashboardPage = () => {
                         }
                     );
 
+                    console.log("=== APP DATA RESPONSE STATUS ===");
+                    console.log("Status:", response.status);
+                    console.log("Status Text:", response.statusText);
+
                     if (!response.ok) {
-                        throw new Error(`Server Error: ${response.status}`);
+                        try {
+                            const errorData = await response.json();
+                            console.error(
+                                "App Data Error Response:",
+                                errorData
+                            );
+
+                            // Extract error message from the response structure
+                            let errorMessage = "Server error occurred";
+                            if (errorData.message) {
+                                errorMessage = errorData.message;
+                            } else if (
+                                errorData.errors &&
+                                errorData.errors.length > 0
+                            ) {
+                                errorMessage = errorData.errors.join(", ");
+                            } else if (
+                                errorData.details &&
+                                errorData.details.format_errors &&
+                                errorData.details.format_errors.length > 0
+                            ) {
+                                errorMessage =
+                                    errorData.details.format_errors.join(", ");
+                            }
+
+                            throw new Error(`Server Error: ${errorMessage}`);
+                        } catch (parseError) {
+                            // If JSON parsing fails, fall back to text response
+                            console.error("JSON parse error:", parseError);
+                            const errorText = await response.text();
+                            console.error(
+                                "App Data Error Response (text):",
+                                errorText
+                            );
+                            throw new Error(
+                                `Server Error: ${response.status} - ${errorText}`
+                            );
+                        }
                     }
 
                     const result = await response.json();
@@ -215,8 +291,49 @@ const DashboardPage = () => {
                     }
                 );
 
+                console.log("=== VALIDATED ANALYSIS RESPONSE STATUS ===");
+                console.log("Status:", response.status);
+                console.log("Status Text:", response.statusText);
+
                 if (!response.ok) {
-                    throw new Error(`Server Error: ${response.status}`);
+                    try {
+                        const errorData = await response.json();
+                        console.error(
+                            "Validated Analysis Error Response:",
+                            errorData
+                        );
+
+                        // Extract error message from the response structure
+                        let errorMessage = "Server error occurred";
+                        if (errorData.message) {
+                            errorMessage = errorData.message;
+                        } else if (
+                            errorData.errors &&
+                            errorData.errors.length > 0
+                        ) {
+                            errorMessage = errorData.errors.join(", ");
+                        } else if (
+                            errorData.details &&
+                            errorData.details.format_errors &&
+                            errorData.details.format_errors.length > 0
+                        ) {
+                            errorMessage =
+                                errorData.details.format_errors.join(", ");
+                        }
+
+                        throw new Error(`Server Error: ${errorMessage}`);
+                    } catch (parseError) {
+                        // If JSON parsing fails, fall back to text response
+                        console.error("JSON parse error:", parseError);
+                        const errorText = await response.text();
+                        console.error(
+                            "Validated Analysis Error Response (text):",
+                            errorText
+                        );
+                        throw new Error(
+                            `Server Error: ${response.status} - ${errorText}`
+                        );
+                    }
                 }
 
                 const result = await response.json();

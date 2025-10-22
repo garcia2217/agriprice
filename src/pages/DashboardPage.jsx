@@ -6,6 +6,7 @@ import ChartContainer from "../components/charts/ChartContainer";
 import AnalysisWrapper from "../components/dashboard/AnalysisWrapper";
 import ValidationHandler from "../components/dashboard/ValidationHandler";
 import ValidationFlowHandler from "../components/dashboard/ValidationFlowHandler";
+import ComparisonContainer from "../components/comparison/ComparisonContainer";
 
 const DashboardPage = () => {
     const [mode, setMode] = useState("research");
@@ -261,6 +262,10 @@ const DashboardPage = () => {
     );
 
     const memoizedAnalysisData = useMemo(() => analysisData, [analysisData]);
+    const isComparisonMode = useMemo(() => {
+        const ar = memoizedAnalysisData?.algorithm_results;
+        return ar && Object.keys(ar).length > 1;
+    }, [memoizedAnalysisData]);
 
     // Validation handlers
     const handleValidatedAnalysis = useCallback(
@@ -381,7 +386,7 @@ const DashboardPage = () => {
         <div className="flex-grow bg-gradient-to-br from-gray-50 to-white min-h-screen">
             {/* Success Message Popup */}
             {showSuccessMessage && (
-                <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right duration-300">
+                <div className="fixed top-20 right-4 z-[9999] animate-in slide-in-from-right duration-300">
                     <div className="bg-green-50 border border-green-200 rounded-lg shadow-lg p-4 max-w-sm">
                         <div className="flex items-center space-x-3">
                             <div className="flex-shrink-0">
@@ -519,38 +524,67 @@ const DashboardPage = () => {
                     </div>
                 </div>
 
-                {/* Chart Section */}
-                <div className="mt-8">
-                    <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                        <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-pink-50">
-                            <div className="flex items-center justify-between">
+                {/* Chart / Comparison Section */}
+                {isComparisonMode ? (
+                    <div className="mt-8">
+                        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-pink-50">
                                 <div className="flex items-center space-x-3">
                                     <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
                                         <span className="text-white text-lg">
-                                            📈
+                                            ⚖️
                                         </span>
                                     </div>
                                     <div>
                                         <h2 className="text-2xl font-bold text-gray-900">
-                                            Analisis Tren Harga
+                                            Perbandingan Algoritma
                                         </h2>
                                         <p className="text-gray-600">
-                                            Perbandingan tren harga antar
-                                            klaster
+                                            Silhouette, DBI, dan Waktu Komputasi
                                         </p>
                                     </div>
                                 </div>
-                                <div className="hidden sm:flex items-center space-x-2 text-sm text-gray-500">
-                                    <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
-                                    <span>Interactive Chart</span>
-                                </div>
+                            </div>
+                            <div className="p-6">
+                                <ComparisonContainer
+                                    data={memoizedAnalysisData}
+                                />
                             </div>
                         </div>
-                        <div className="p-6">
-                            <ChartContainer data={memoizedAnalysisData} />
+                    </div>
+                ) : (
+                    <div className="mt-8">
+                        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-pink-50">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                                            <span className="text-white text-lg">
+                                                📈
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <h2 className="text-2xl font-bold text-gray-900">
+                                                Analisis Tren Harga
+                                            </h2>
+                                            <p className="text-gray-600">
+                                                Perbandingan tren harga antar
+                                                klaster
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="hidden sm:flex items-center space-x-2 text-sm text-gray-500">
+                                        <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
+                                        <span>Interactive Chart</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="p-6">
+                                <ChartContainer data={memoizedAnalysisData} />
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
 
                 {/* Stats Cards */}
                 <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">

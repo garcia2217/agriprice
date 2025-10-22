@@ -30,7 +30,10 @@ export const useMapManager = (data) => {
 
                 markersLayer.current.clearLayers();
 
-                data.cities.forEach((city) => {
+                const cities = data?.cities || [];
+                const clusters = data?.clusters || [];
+
+                cities.forEach((city) => {
                     const cluster = data.clusters.find(
                         (c) => c.id === city.clusterId
                     );

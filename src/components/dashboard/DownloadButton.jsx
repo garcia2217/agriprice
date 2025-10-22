@@ -86,7 +86,7 @@ const DownloadButton = () => {
             {/* Toast Notification */}
             {toast && (
                 <div
-                    className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 max-w-sm ${
+                    className={`fixed top-20 right-4 p-4 rounded-lg shadow-lg z-[9999] max-w-sm ${
                         toast.type === "success"
                             ? "bg-green-500 text-white"
                             : "bg-red-500 text-white"

@@ -1,10 +1,29 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { useMapManager } from "../../hooks/useMapManager";
 
 const MapComponent = ({ data }) => {
-    const { mapRef } = useMapManager(data);
+    // Determine if comparison data is present
+    const algorithms = useMemo(() => {
+        if (data && data.algorithm_results) {
+            return Object.keys(data.algorithm_results);
+        }
+        return null;
+    }, [data]);
 
-    const hasData = data && data.clusters && data.clusters.length > 0;
+    const [selectedAlgorithm, setSelectedAlgorithm] = useState(
+        algorithms && algorithms.length > 0 ? algorithms[0] : null
+    );
+
+    const mapData = useMemo(() => {
+        if (algorithms && selectedAlgorithm) {
+            return data.algorithm_results[selectedAlgorithm];
+        }
+        return data;
+    }, [algorithms, selectedAlgorithm, data]);
+
+    const { mapRef } = useMapManager(mapData);
+
+    const hasData = mapData && mapData.clusters && mapData.clusters.length > 0;
 
     return (
         <div className="h-full w-full flex flex-col">
@@ -17,7 +36,7 @@ const MapComponent = ({ data }) => {
                         </span>
                         {hasData ? (
                             <div className="flex space-x-3">
-                                {data.clusters.map((cluster) => (
+                                {mapData.clusters.map((cluster) => (
                                     <div
                                         key={cluster.id}
                                         className="flex items-center space-x-1"
@@ -45,9 +64,33 @@ const MapComponent = ({ data }) => {
 
                 <div className="flex items-center space-x-2 text-xs text-gray-500">
                     <span>🗺️</span>
-                    <span>{data?.cities?.length || 0} lokasi</span>
+                    <span>{mapData?.cities?.length || 0} lokasi</span>
                 </div>
             </div>
+
+            {/* Algorithm selector for comparison mode */}
+            {algorithms && algorithms.length > 1 && (
+                <div className="mb-3">
+                    <div className="inline-flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
+                        <label className="text-xs font-medium text-gray-700">
+                            Algoritma:
+                        </label>
+                        <select
+                            value={selectedAlgorithm || algorithms[0]}
+                            onChange={(e) =>
+                                setSelectedAlgorithm(e.target.value)
+                            }
+                            className="px-2 py-1 bg-white border border-gray-300 rounded-md text-xs font-medium text-gray-700 hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                        >
+                            {algorithms.map((alg) => (
+                                <option key={alg} value={alg}>
+                                    {alg.toUpperCase()}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+            )}
 
             {/* Map Container */}
             <div className="flex-grow relative rounded-lg overflow-hidden border border-gray-200 shadow-inner">

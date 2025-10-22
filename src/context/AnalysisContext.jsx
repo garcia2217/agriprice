@@ -42,10 +42,19 @@ export const AnalysisProvider = ({ children, defaultMode = "research" }) => {
         (src) => setAnalysisConfig((p) => ({ ...p, dataSource: src })),
         []
     );
-    const toggleAlgorithm = useCallback(
-        (id) => setAnalysisConfig((p) => ({ ...p, algorithms: [id] })),
-        []
-    );
+    const toggleAlgorithm = useCallback((id) => {
+        setAnalysisConfig((prev) => {
+            const alreadySelected = prev.algorithms.includes(id);
+            // Prevent removing the last remaining algorithm
+            if (alreadySelected && prev.algorithms.length === 1) {
+                return prev;
+            }
+            const nextAlgorithms = alreadySelected
+                ? prev.algorithms.filter((alg) => alg !== id)
+                : [...prev.algorithms, id];
+            return { ...prev, algorithms: nextAlgorithms };
+        });
+    }, []);
     const toggleCommodity = useCallback(
         (name) =>
             setAnalysisConfig((p) => ({

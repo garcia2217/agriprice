@@ -81,7 +81,7 @@ const ClusterMembersTable = ({
                                         ></div>
                                         <div className="flex items-center gap-2">
                                             <span className="text-sm font-bold text-gray-900">
-                                                Klaster {clusterId + 1}
+                                                Klaster {clusterId}
                                             </span>
                                             {cluster?.name && (
                                                 <>

@@ -7,6 +7,7 @@ import AnalysisWrapper from "../components/dashboard/AnalysisWrapper";
 import ValidationHandler from "../components/dashboard/ValidationHandler";
 import ValidationFlowHandler from "../components/dashboard/ValidationFlowHandler";
 import ComparisonContainer from "../components/comparison/ComparisonContainer";
+import FullScreenLoader from "../components/ui/FullScreenLoader";
 
 const DashboardPage = () => {
     const [mode, setMode] = useState("research");
@@ -384,6 +385,9 @@ const DashboardPage = () => {
 
     return (
         <div className="flex-grow bg-gradient-to-br from-gray-50 to-white min-h-screen">
+            {/* Full Screen Loading Overlay */}
+            <FullScreenLoader isLoading={isLoading} />
+
             {/* Success Message Popup */}
             {showSuccessMessage && (
                 <div className="fixed top-20 right-4 z-[9999] animate-in slide-in-from-right duration-300">
@@ -515,7 +519,6 @@ const DashboardPage = () => {
                                                 handleValidatedAnalysis
                                             }
                                             onReupload={handleReupload}
-                                            isLoading={isLoading}
                                         />
                                     </AnalysisWrapper>
                                 </AnalysisProvider>

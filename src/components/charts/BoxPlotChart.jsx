@@ -248,26 +248,6 @@ const BoxPlotChart = ({
 
     return (
         <div className="space-y-6">
-            {/* Commodity Selector */}
-            <div className="flex justify-center">
-                <div className="inline-flex items-center space-x-3 bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
-                    <label className="text-sm font-semibold text-gray-700">
-                        Komoditas:
-                    </label>
-                    <select
-                        value={selectedCommodity}
-                        onChange={(e) => onCommodityChange(e.target.value)}
-                        className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:border-orange-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 focus:outline-none transition-all duration-200 cursor-pointer"
-                    >
-                        {commodities.map((commodity) => (
-                            <option key={commodity} value={commodity}>
-                                {commodity}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-            </div>
-
             {/* Chart Container */}
             <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-md">
                 <div style={{ height: 480 }}>

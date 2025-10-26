@@ -4,7 +4,13 @@ import { availableAlgorithms } from "../../constants/analysis";
 import DownloadButton from "../dashboard/DownloadButton";
 
 const SummaryBar = ({ isLoading, error, onFileUpload }) => {
-    const { analysisConfig, selectedFile, actions } = useAnalysis();
+    const {
+        analysisConfig,
+        selectedFile,
+        validationConfig,
+        showValidationModal,
+        actions,
+    } = useAnalysis();
     const isUploadMode = analysisConfig.dataSource === "upload";
     const disabled = (function () {
         if (isLoading) return true;
@@ -15,28 +21,34 @@ const SummaryBar = ({ isLoading, error, onFileUpload }) => {
 
     return (
         <div className="space-y-3 border-t pt-3 sticky bottom-0 bg-white">
-            <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
-                <div className="text-xs text-indigo-700 space-y-1">
-                    <div>
-                        <strong>Algoritma:</strong>{" "}
-                        {analysisConfig.algorithms.length > 0
-                            ? analysisConfig.algorithms
-                                  .map(
-                                      (alg) =>
-                                          availableAlgorithms.find(
-                                              (a) => a.id === alg
-                                          )?.name
-                                  )
-                                  .join(", ")
-                            : "Belum dipilih"}
-                    </div>
-                    <div>
-                        <strong>Klaster:</strong> {analysisConfig.numClusters} |{" "}
-                        <strong>Komoditas:</strong>{" "}
-                        {analysisConfig.commodities.length}
+            {/* Configuration Summary - Only show for app data source */}
+            {!isUploadMode && (
+                <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
+                    <div className="text-xs text-indigo-700 space-y-1">
+                        <div>
+                            <strong>Algoritma:</strong>{" "}
+                            {analysisConfig.algorithms.length > 0
+                                ? analysisConfig.algorithms
+                                      .map(
+                                          (alg) =>
+                                              availableAlgorithms.find(
+                                                  (a) => a.id === alg
+                                              )?.name
+                                      )
+                                      .join(", ")
+                                : "Belum dipilih"}
+                        </div>
+                        <div>
+                            <strong>Klaster:</strong>{" "}
+                            {analysisConfig.numClusters} |{" "}
+                            <strong>Komoditas:</strong>{" "}
+                            {analysisConfig.commodities.length} |{" "}
+                            <strong>Kota:</strong>{" "}
+                            {analysisConfig.locations?.cities?.length || 0}
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             <button
                 onClick={() => actions.submitAnalysis({ onFileUpload })}
@@ -48,17 +60,8 @@ const SummaryBar = ({ isLoading, error, onFileUpload }) => {
                 }`}
             >
                 <div className="flex items-center justify-center space-x-2">
-                    {isLoading ? (
-                        <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            <span className="text-sm">Menganalisis...</span>
-                        </>
-                    ) : (
-                        <>
-                            <span>🚀</span>
-                            <span className="text-sm">Mulai Analisis</span>
-                        </>
-                    )}
+                    <span>🚀</span>
+                    <span className="text-sm">Mulai Analisis</span>
                 </div>
             </button>
 

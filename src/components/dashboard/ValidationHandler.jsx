@@ -3,7 +3,7 @@ import { useAnalysis } from "../../context/AnalysisContext";
 import ValidationErrorModal from "../modals/ValidationErrorModal";
 import ValidationConfigModal from "../modals/ValidationConfigModal";
 
-const ValidationHandler = ({ onValidatedAnalysis, onReupload, isLoading }) => {
+const ValidationHandler = ({ onValidatedAnalysis, onReupload }) => {
     const { validationResult, showValidationModal, showErrorModal, actions } =
         useAnalysis();
 
@@ -20,7 +20,6 @@ const ValidationHandler = ({ onValidatedAnalysis, onReupload, isLoading }) => {
                     validationResult={validationResult}
                     onConfirm={onValidatedAnalysis}
                     onCancel={() => actions.closeValidationModal()}
-                    isLoading={isLoading}
                 />
             )}
 

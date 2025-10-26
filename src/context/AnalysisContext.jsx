@@ -18,13 +18,21 @@ const AnalysisContext = createContext(null);
 
 export const AnalysisProvider = ({ children, defaultMode = "research" }) => {
     const [mode, setMode] = useState(defaultMode);
-    const [analysisConfig, setAnalysisConfig] = useState({
-        algorithms: ["kmeans"],
-        commodities: ["Beras", "Daging Ayam", "Telur Ayam"],
-        numClusters: 3,
-        yearRange: { start: 2020, end: 2024 },
-        locations: { provinces: [], cities: [] },
-        dataSource: "app",
+    const [analysisConfig, setAnalysisConfig] = useState(() => {
+        const allProvinces = Object.keys(citiesByProvince);
+        const allCities = Object.values(citiesByProvince).flat();
+
+        return {
+            algorithms: ["kmeans"],
+            commodities: availableCommodities,
+            numClusters: 2,
+            yearRange: { start: 2020, end: 2024 },
+            locations: {
+                provinces: allProvinces,
+                cities: allCities,
+            },
+            dataSource: "app",
+        };
     });
     const [selectedFile, setSelectedFile] = useState(null);
     const [analysisId, setAnalysisId] = useState(null);
@@ -236,6 +244,16 @@ export const AnalysisProvider = ({ children, defaultMode = "research" }) => {
                 end: Math.max(...result.available_data.years),
             },
         });
+
+        // Also update main analysis config to reflect the selected cities for display
+        setAnalysisConfig((prev) => ({
+            ...prev,
+            locations: {
+                provinces: allProvinces,
+                cities: allCities,
+            },
+        }));
+
         setShowValidationModal(true);
     }, []);
 

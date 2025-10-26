@@ -39,12 +39,13 @@ const TrendChart = ({ commodityData, clusters, years }) => {
     }, [commodityData, years.length, chartConfig]);
 
     const formatCurrency = useMemo(
-        () => (value) =>
-            new Intl.NumberFormat("id-ID", {
-                style: "currency",
-                currency: "IDR",
-                minimumFractionDigits: 0,
-            }).format(value),
+        () => (value) => {
+            if (value >= 1000) {
+                const rb = Math.round(value / 1000);
+                return `Rp ${rb} rb`;
+            }
+            return `Rp ${Math.round(value)}`;
+        },
         []
     );
 

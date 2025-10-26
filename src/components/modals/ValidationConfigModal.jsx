@@ -2,12 +2,7 @@ import React, { useState, useCallback, useEffect } from "react";
 import { useAnalysis } from "../../context/AnalysisContext";
 import { availableAlgorithms } from "../../constants/analysis";
 
-const ValidationConfigModal = ({
-    validationResult,
-    onConfirm,
-    onCancel,
-    isLoading,
-}) => {
+const ValidationConfigModal = ({ validationResult, onConfirm, onCancel }) => {
     const { analysisConfig, validationConfig, actions } = useAnalysis();
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -134,7 +129,6 @@ const ValidationConfigModal = ({
     );
 
     const isDisabled =
-        isLoading ||
         !validationConfig?.commodities?.length ||
         !validationConfig?.cities?.length;
 
@@ -168,69 +162,6 @@ const ValidationConfigModal = ({
 
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                    {/* Data Quality Summary */}
-                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <h4 className="font-semibold text-blue-900 mb-3">
-                            📊 Ringkasan Kualitas Data
-                        </h4>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <span className="text-blue-700 font-medium">
-                                    Total Records:
-                                </span>
-                                <span className="ml-2 text-blue-800">
-                                    {available_data?.total_records?.toLocaleString() ||
-                                        "N/A"}
-                                </span>
-                            </div>
-                            <div>
-                                <span className="text-blue-700 font-medium">
-                                    Kualitas Data:
-                                </span>
-                                <span className="ml-2 text-blue-800">
-                                    {data_quality?.score
-                                        ? `${(data_quality.score * 100).toFixed(
-                                              1
-                                          )}%`
-                                        : "N/A"}
-                                </span>
-                            </div>
-                            <div>
-                                <span className="text-blue-700 font-medium">
-                                    Kelengkapan:
-                                </span>
-                                <span className="ml-2 text-blue-800">
-                                    {data_quality?.data_completeness
-                                        ? `${(
-                                              data_quality.data_completeness *
-                                              100
-                                          ).toFixed(1)}%`
-                                        : "N/A"}
-                                </span>
-                            </div>
-                            <div>
-                                <span className="text-blue-700 font-medium">
-                                    Missing Data:
-                                </span>
-                                <span className="ml-2 text-blue-800">
-                                    {data_quality?.missing_data_percentage
-                                        ? `${data_quality.missing_data_percentage.toFixed(
-                                              1
-                                          )}%`
-                                        : "N/A"}
-                                </span>
-                            </div>
-                        </div>
-                        {warnings && warnings.length > 0 && (
-                            <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
-                                <div className="text-yellow-800 text-sm">
-                                    <strong>⚠️ Peringatan:</strong>{" "}
-                                    {warnings.join(", ")}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
                     {/* Jumlah Klaster */}
                     <div>
                         <div className="flex items-center justify-between mb-3">
@@ -515,11 +446,6 @@ const ValidationConfigModal = ({
                                 <>
                                     <span className="text-green-200">✓</span>
                                     <span>Berhasil!</span>
-                                </>
-                            ) : isLoading ? (
-                                <>
-                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                    <span>Menganalisis...</span>
                                 </>
                             ) : (
                                 <>

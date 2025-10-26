@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useMapManager } from "../../hooks/useMapManager";
 
 const MapComponent = ({ data }) => {
@@ -21,6 +21,15 @@ const MapComponent = ({ data }) => {
         return data;
     }, [algorithms, selectedAlgorithm, data]);
 
+    useEffect(() => {
+        // Reset selected algorithm when algorithms change (new data from server)
+        if (algorithms && algorithms.length > 0) {
+            setSelectedAlgorithm(algorithms[0]);
+        } else {
+            setSelectedAlgorithm(null);
+        }
+    }, [algorithms]);
+
     const { mapRef } = useMapManager(mapData);
 
     const hasData = mapData && mapData.clusters && mapData.clusters.length > 0;
@@ -35,7 +44,7 @@ const MapComponent = ({ data }) => {
                             Legenda:
                         </span>
                         {hasData ? (
-                            <div className="flex space-x-3">
+                            <div className="flex flex-wrap gap-2">
                                 {mapData.clusters.map((cluster) => (
                                     <div
                                         key={cluster.id}
@@ -49,7 +58,7 @@ const MapComponent = ({ data }) => {
                                             }}
                                         ></div>
                                         <span className="text-xs text-gray-600">
-                                            Klaster {cluster.id + 1}
+                                            Klaster {cluster.id}
                                         </span>
                                     </div>
                                 ))}
@@ -62,35 +71,35 @@ const MapComponent = ({ data }) => {
                     </div>
                 </div>
 
-                <div className="flex items-center space-x-2 text-xs text-gray-500">
-                    <span>🗺️</span>
-                    <span>{mapData?.cities?.length || 0} lokasi</span>
-                </div>
-            </div>
+                <div className="flex items-center space-x-4">
+                    {/* Algorithm selector for comparison mode */}
+                    {algorithms && algorithms.length > 1 && (
+                        <div className="flex items-center space-x-2">
+                            <label className="text-xs font-medium text-gray-700">
+                                Algoritma:
+                            </label>
+                            <select
+                                value={selectedAlgorithm || algorithms[0]}
+                                onChange={(e) =>
+                                    setSelectedAlgorithm(e.target.value)
+                                }
+                                className="px-2 py-1 bg-white border border-gray-300 rounded-md text-xs font-medium text-gray-700 hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                            >
+                                {algorithms.map((alg) => (
+                                    <option key={alg} value={alg}>
+                                        {alg.toUpperCase()}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
 
-            {/* Algorithm selector for comparison mode */}
-            {algorithms && algorithms.length > 1 && (
-                <div className="mb-3">
-                    <div className="inline-flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
-                        <label className="text-xs font-medium text-gray-700">
-                            Algoritma:
-                        </label>
-                        <select
-                            value={selectedAlgorithm || algorithms[0]}
-                            onChange={(e) =>
-                                setSelectedAlgorithm(e.target.value)
-                            }
-                            className="px-2 py-1 bg-white border border-gray-300 rounded-md text-xs font-medium text-gray-700 hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
-                        >
-                            {algorithms.map((alg) => (
-                                <option key={alg} value={alg}>
-                                    {alg.toUpperCase()}
-                                </option>
-                            ))}
-                        </select>
+                    <div className="flex items-center space-x-2 text-xs text-gray-500">
+                        <span>🗺️</span>
+                        <span>{mapData?.cities?.length || 0} lokasi</span>
                     </div>
                 </div>
-            )}
+            </div>
 
             {/* Map Container */}
             <div className="flex-grow relative rounded-lg overflow-hidden border border-gray-200 shadow-inner">

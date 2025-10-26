@@ -39,7 +39,7 @@ const AboutPage = () => (
                                     <div className="w-48 h-48 mx-auto rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 transform hover:scale-105 transition-transform duration-300">
                                         <img
                                             className="w-full h-full object-cover"
-                                            src="https://i.pinimg.com/474x/07/c4/72/07c4720d19a9e9edad9d0e939eca304a.jpg"
+                                            src="/profile_picture.png"
                                             alt="Foto profil peneliti"
                                         />
                                     </div>

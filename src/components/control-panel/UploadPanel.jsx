@@ -48,8 +48,7 @@ const UploadPanel = () => {
                     <div className="flex items-center space-x-2 text-xs text-blue-600">
                         <span>💡</span>
                         <span>
-                            Format: CSV dengan kolom kota, komoditas, harga,
-                            tanggal
+                            Format: Excel hasil download dari website PIHPS
                         </span>
                     </div>
                 )}

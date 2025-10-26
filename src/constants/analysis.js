@@ -29,12 +29,12 @@ export const availableAlgorithms = [
 export const availableCommodities = [
     "Beras",
     "Daging Ayam",
+    "Daging Sapi", 
     "Telur Ayam",
-    "Daging Sapi",
-    "Gula Pasir",
-    "Minyak Goreng",
-    "Cabai Merah",
-    "Cabai Rawit",
     "Bawang Merah",
     "Bawang Putih",
+    "Cabai Merah",
+    "Cabai Rawit",
+    "Minyak Goreng",
+    "Gula Pasir",
 ];

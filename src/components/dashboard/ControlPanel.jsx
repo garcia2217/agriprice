@@ -1,7 +1,6 @@
 import React from "react";
 import { useAnalysis } from "../../context/AnalysisContext";
 import ModeSelector from "../control-panel/ModeSelector";
-import Tabs from "../control-panel/Tabs";
 import AlgorithmSelector from "../control-panel/AlgorithmSelector";
 import ConfigPanel from "../control-panel/ConfigPanel";
 import UploadPanel from "../control-panel/UploadPanel";
@@ -114,9 +113,10 @@ const ControlPanel = ({
                                     checked={
                                         analysisConfig.dataSource === "app"
                                     }
-                                    onChange={() =>
-                                        actions.setDataSource("app")
-                                    }
+                                    onChange={() => {
+                                        actions.setDataSource("app");
+                                        actions.setActiveTab("algorithms");
+                                    }}
                                 />
                                 <div className="flex items-center space-x-2">
                                     <span>📚</span>
@@ -140,9 +140,10 @@ const ControlPanel = ({
                                     checked={
                                         analysisConfig.dataSource === "upload"
                                     }
-                                    onChange={() =>
-                                        actions.setDataSource("upload")
-                                    }
+                                    onChange={() => {
+                                        actions.setDataSource("upload");
+                                        actions.setActiveTab("upload");
+                                    }}
                                 />
                                 <div className="flex items-center space-x-2">
                                     <span>📤</span>
@@ -153,15 +154,59 @@ const ControlPanel = ({
                             </label>
                         </div>
                     </div>
-                    {/* Tab Navigation */}
-                    <Tabs />
+                    {/* Conditional Tab Navigation and Content */}
+                    {analysisConfig.dataSource === "app" ? (
+                        /* Data Aplikasi Mode - Show Algorithm + Config tabs */
+                        <>
+                            {/* Tab Navigation - Only Algorithm and Config */}
+                            <div className="flex bg-gray-100 rounded-lg p-1 min-w-0">
+                                {[
+                                    {
+                                        id: "algorithms",
+                                        label: "Algoritma",
+                                        icon: "🤖",
+                                    },
+                                    {
+                                        id: "config",
+                                        label: "Config",
+                                        icon: "⚙️",
+                                    },
+                                ].map((tab) => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() =>
+                                            actions.setActiveTab(tab.id)
+                                        }
+                                        className={`flex-1 flex items-center justify-center space-x-1 py-2 px-2 rounded-md text-xs font-medium transition-all duration-200 min-w-0 ${
+                                            ui.activeTab === tab.id
+                                                ? "bg-white text-blue-600 shadow-sm"
+                                                : "text-gray-600 hover:text-blue-600"
+                                        }`}
+                                    >
+                                        <span className="text-sm flex-shrink-0">
+                                            {tab.icon}
+                                        </span>
+                                        <span className="truncate">
+                                            {tab.label}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
 
-                    {/* Tab Content (internal scroll) */}
-                    <div className="flex-grow overflow-y-auto pr-1">
-                        {ui.activeTab === "algorithms" && <AlgorithmSelector />}
-                        {ui.activeTab === "config" && <ConfigPanel />}
-                        {ui.activeTab === "upload" && <UploadPanel />}
-                    </div>
+                            {/* Tab Content (internal scroll) */}
+                            <div className="flex-grow overflow-y-auto pr-1">
+                                {ui.activeTab === "algorithms" && (
+                                    <AlgorithmSelector />
+                                )}
+                                {ui.activeTab === "config" && <ConfigPanel />}
+                            </div>
+                        </>
+                    ) : (
+                        /* Upload Data Mode - Show upload content directly without tabs */
+                        <div className="flex-grow overflow-y-auto pr-1">
+                            <UploadPanel />
+                        </div>
+                    )}
 
                     {/* Fixed Bottom Section - Configuration Summary & Submit */}
                     <SummaryBar

@@ -1,6 +1,6 @@
 import React from "react";
 
-const Footer = () => (
+const Footer = ({ setCurrentPage }) => (
     <footer className="bg-gradient-to-r from-gray-900 to-gray-800 border-t border-gray-700 mt-auto">
         <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -29,27 +29,37 @@ const Footer = () => (
                     <div className="space-y-2">
                         <a
                             href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setCurrentPage && setCurrentPage("Dashboard");
+                            }}
                             className="block text-gray-300 hover:text-blue-400 text-sm transition-colors"
                         >
                             📊 Dashboard
                         </a>
                         <a
                             href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setCurrentPage && setCurrentPage("Dashboard");
+                            }}
                             className="block text-gray-300 hover:text-blue-400 text-sm transition-colors"
                         >
                             📈 Analisis Data
                         </a>
                         <a
-                            href="#"
+                            href="/templates/template.zip"
+                            download
                             className="block text-gray-300 hover:text-blue-400 text-sm transition-colors"
                         >
                             📋 Template Data
                         </a>
                         <a
-                            href="#"
+                            href="/manual.pdf"
+                            download
                             className="block text-gray-300 hover:text-blue-400 text-sm transition-colors"
                         >
-                            📚 Dokumentasi
+                            📚 Dokumentasi (Manual)
                         </a>
                     </div>
                 </div>

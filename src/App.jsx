@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useLeafletLoader } from "./hooks/useLeafletLoader";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
@@ -14,6 +14,13 @@ const App = () => {
     const handlePageChange = useCallback((page) => {
         setCurrentPage(page);
     }, []);
+
+    // Ensure we scroll to top on page change (e.g., Home -> Dashboard)
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+        }
+    }, [currentPage]);
 
     const renderPage = () => {
         switch (currentPage) {
@@ -35,7 +42,7 @@ const App = () => {
                 setCurrentPage={handlePageChange}
             />
             <main className="flex-grow">{renderPage()}</main>
-            <Footer />
+            <Footer setCurrentPage={handlePageChange} />
         </div>
     );
 };

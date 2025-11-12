@@ -61,7 +61,9 @@ const SummaryBar = ({ isLoading, error, onFileUpload }) => {
             >
                 <div className="flex items-center justify-center space-x-2">
                     <span>🚀</span>
-                    <span className="text-sm">Mulai Analisis</span>
+                    <span className="text-sm">
+                        {isUploadMode ? "Validasi Data" : "Mulai Analisis"}
+                    </span>
                 </div>
             </button>
 

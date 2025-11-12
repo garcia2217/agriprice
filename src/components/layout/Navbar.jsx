@@ -52,6 +52,18 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
                         </div>
                     </div>
 
+                    {/* Desktop Manual Button */}
+                    <div className="hidden md:block">
+                        <a
+                            href="/manual.pdf"
+                            download
+                            className="ml-4 inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 shadow-md transition-colors"
+                        >
+                            <span className="mr-2">📘</span>
+                            Download Manual
+                        </a>
+                    </div>
+
                     {/* Mobile menu button */}
                     <div className="md:hidden">
                         <button
@@ -102,6 +114,16 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
                                     <span>{item.label}</span>
                                 </button>
                             ))}
+
+                            <a
+                                href="/manual.pdf"
+                                download
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="flex items-center space-x-3 w-full px-3 py-2 rounded-lg text-sm font-medium text-blue-600 bg-blue-50 border-l-4 border-blue-600"
+                            >
+                                <span className="text-lg">📘</span>
+                                <span>Download Manual</span>
+                            </a>
                         </div>
                     </div>
                 )}

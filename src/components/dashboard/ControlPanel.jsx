@@ -46,7 +46,7 @@ const ControlPanel = ({
                                             <div
                                                 className={`font-semibold text-sm ${cluster.color} mb-1`}
                                             >
-                                                Klaster {index + 1}
+                                                Klaster {cluster.id}
                                             </div>
                                             <div className="text-xs text-gray-600">
                                                 {cluster.name.split(": ")[1]}

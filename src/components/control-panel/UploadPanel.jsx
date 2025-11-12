@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useAnalysis } from "../../context/AnalysisContext";
 
 const UploadPanel = () => {
@@ -6,6 +6,7 @@ const UploadPanel = () => {
         useAnalysis();
     const fileInputRef = useRef(null);
     const isUpload = analysisConfig.dataSource === "upload";
+    const [showGuide, setShowGuide] = useState(false);
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -133,6 +134,124 @@ const UploadPanel = () => {
                             <span>⬇️</span>
                             <span>Download Template.zip</span>
                         </a>
+                    </div>
+                </div>
+            </div>
+
+            {/* Inline Guidance (Accordion) */}
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl">
+                <div className="flex items-start space-x-3">
+                    <span className="text-blue-600">📘</span>
+                    <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                            <div className="font-medium text-blue-800 text-sm">
+                                Panduan Upload Data
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowGuide((v) => !v)}
+                                className="text-xs font-medium text-blue-700 hover:text-blue-900 underline"
+                            >
+                                {showGuide ? "Sembunyikan" : "Lihat Panduan"}
+                            </button>
+                        </div>
+                        {showGuide && (
+                            <div className="mt-2 text-xs text-blue-900 space-y-3">
+                                <div>
+                                    <p className="font-semibold mb-1">
+                                        📁 Format File:
+                                    </p>
+                                    <p>
+                                        • File ZIP (maks. 20 MB) berisi Excel
+                                        hasil download dari PIHPSN
+                                    </p>
+                                    <p>
+                                        • Struktur:{" "}
+                                        <span className="font-mono bg-gray-100 px-1 rounded">
+                                            PROVINSI/KOTA/YYYY.xlsx
+                                        </span>
+                                    </p>
+                                    <p>
+                                        • Nama file Excel:{" "}
+                                        <span className="font-mono bg-gray-100 px-1 rounded">
+                                            2020.xlsx
+                                        </span>
+                                        ,{" "}
+                                        <span className="font-mono bg-gray-100 px-1 rounded">
+                                            2021.xlsx
+                                        </span>
+                                        , dst.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <p className="font-semibold mb-1">
+                                        🏙️ Kota & Komoditas:
+                                    </p>
+                                    <p>
+                                        • Gunakan 69 kota yang didukung (lihat
+                                        mode "Data Aplikasi")
+                                    </p>
+                                    <p>
+                                        • Komoditas harus sesuai daftar di
+                                        konfigurasi "Data Aplikasi"
+                                    </p>
+                                    <p>
+                                        • Folder kota kosong tidak masalah (akan
+                                        diabaikan)
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <p className="font-semibold mb-1">
+                                        📊 Isi Excel:
+                                    </p>
+                                    <p>
+                                        • File harus hasil download resmi dari
+                                        PIHPSN
+                                    </p>
+                                    <p>
+                                        • Ikuti langkah download di manual book
+                                    </p>
+                                    <p>
+                                        • Data minimal 1 tahun, hindari sel
+                                        kosong
+                                    </p>
+                                </div>
+
+                                <div className="bg-gray-50 p-2 rounded border">
+                                    <p className="font-semibold text-xs mb-1">
+                                        Contoh struktur ZIP:
+                                    </p>
+                                    <pre className="text-xs text-gray-700 whitespace-pre-wrap">{`Data Harga/
+  Jawa Barat/
+    Kota Bandung/
+      2020.xlsx
+      2021.xlsx
+  Jawa Timur/
+    Kota Surabaya/
+      2020.xlsx
+      2021.xlsx`}</pre>
+                                </div>
+
+                                <div className="flex flex-wrap gap-2 pt-1">
+                                    <a
+                                        href="/templates/template.zip"
+                                        download="Template.zip"
+                                        className="inline-flex items-center px-2 py-1 rounded-md bg-white border border-blue-200 text-blue-700 hover:bg-blue-50"
+                                    >
+                                        ⬇️ Template
+                                    </a>
+                                    <a
+                                        href="/manual.pdf"
+                                        download
+                                        className="inline-flex items-center px-2 py-1 rounded-md bg-white border border-blue-200 text-blue-700 hover:bg-blue-50"
+                                    >
+                                        📘 Manual Lengkap
+                                    </a>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -226,7 +226,6 @@ const DashboardPage = () => {
         setError(null);
       } else if (newMode === "user") {
         if (customAnalysisData) {
-          O;
           setAnalysisData(customAnalysisData);
         } else {
           setAnalysisData(null); // Trigger empty state
